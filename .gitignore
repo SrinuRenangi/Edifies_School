@@ -1,0 +1,31 @@
+# Maven Build Output
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Local PostgreSQL Database Data
+pgdata/
+*.log
+
+# IDE & OS Files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.DS_Store
+Thumbs.db
+
+# Frontend Dependencies & Build Output
+node_modules/
+dist/
+.angular/
+
+# Photo Storage Local Uploads
+uploads/
+!uploads/.gitkeep
+docker/volumes/

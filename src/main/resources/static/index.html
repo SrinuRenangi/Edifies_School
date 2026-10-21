@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Attendance Management — Employee Directory</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">Edifies Staff Attendance</span>
+                    <span class="brand-subtitle">Enterprise Kiosk & Administration</span>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <button class="nav-link active" id="nav-employees">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Staff Directory</span>
+                </button>
+                <button class="nav-link placeholder" title="Attendance Kiosk (Planned - Phase 14)" onclick="showPlaceholderNotice('Attendance Kiosk')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <span>Kiosk Punch</span>
+                    <span class="badge-pill">Phase 14</span>
+                </button>
+                <button class="nav-link placeholder" title="Live Attendance Monitor (Planned - Phase 17)" onclick="showPlaceholderNotice('Live Monitor')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Live Monitor</span>
+                    <span class="badge-pill">Phase 17</span>
+                </button>
+                <button class="nav-link placeholder" title="Monthly Reports & CSV Export (Planned - Phase 18)" onclick="showPlaceholderNotice('Monthly Reports')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Reports & Export</span>
+                    <span class="badge-pill">Phase 18</span>
+                </button>
+            </nav>
+
+            <div class="nav-status">
+                <span class="pulse-indicator"></span>
+                <span class="status-label">PostgreSQL 17 Active</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-container">
+            <!-- Page Header with Summary Stats -->
+            <section class="page-header">
+                <div>
+                    <h1 class="page-title">Employee Directory</h1>
+                    <p class="page-description">Manage staff profiles, unique employee IDs, and active status for attendance verification.</p>
+                </div>
+                <button class="btn btn-primary" id="btn-open-register-modal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Register Employee</span>
+                </button>
+            </section>
+
+            <!-- Metrics Summary Cards -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon stat-blue">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Total Registered Staff</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon stat-green">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-active">0</div>
+                        <div class="stat-label">Active (Eligible for Punch)</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon stat-amber">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="stat-inactive">0</div>
+                        <div class="stat-label">Inactive (History Preserved)</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Action Controls: Search & Filter -->
+            <section class="filter-bar">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="search-input" placeholder="Search by name, employee ID, or department..." autocomplete="off">
+                    <button class="clear-search-btn" id="clear-search-btn" style="display: none;">&times;</button>
+                </div>
+
+                <div class="filter-controls">
+                    <label for="status-filter" class="filter-label">Filter Status:</label>
+                    <select id="status-filter" class="custom-select">
+                        <option value="ALL">All Staff</option>
+                        <option value="ACTIVE" selected>Active Only</option>
+                        <option value="INACTIVE">Inactive Only</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Employee Table / State Container -->
+            <section class="table-container card">
+                <!-- Loading State -->
+                <div id="loading-spinner" class="state-box" style="display: none;">
+                    <div class="spinner"></div>
+                    <p class="state-text">Loading employee records from PostgreSQL...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-box" class="state-box error-state" style="display: none;">
+                    <div class="state-icon error-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h3 class="state-title">Failed to load employees</h3>
+                    <p class="state-text" id="error-message">Could not connect to the backend server.</p>
+                    <button class="btn btn-secondary" onclick="loadEmployees()">Try Again</button>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="state-box" style="display: none;">
+                    <div class="state-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <line x1="19" y1="8" x2="19" y2="14"></line>
+                            <line x1="22" y1="11" x2="16" y2="11"></line>
+                        </svg>
+                    </div>
+                    <h3 class="state-title">No employees found</h3>
+                    <p class="state-text">Get started by registering your first employee in the system.</p>
+                    <button class="btn btn-primary" onclick="openRegisterModal()">Register First Employee</button>
+                </div>
+
+                <!-- Table View -->
+                <div class="table-responsive" id="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Full Name</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Registration Date</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-table-body">
+                            <!-- Populated dynamically by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <!-- Register Employee Modal -->
+        <div class="modal-backdrop" id="register-modal" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">Register New Employee</h3>
+                    <button class="modal-close-btn" onclick="closeRegisterModal()">&times;</button>
+                </div>
+                <form id="register-form" onsubmit="handleRegisterSubmit(event)">
+                    <div class="modal-body">
+                        <!-- Server Error Banner -->
+                        <div id="register-error-banner" class="alert alert-danger" style="display: none;"></div>
+
+                        <div class="form-group">
+                            <label for="reg-employee-id" class="form-label">Employee ID / Code <span class="required">*</span></label>
+                            <input type="text" id="reg-employee-id" class="form-control mono-input" placeholder="e.g. EMP-101" required maxlength="32">
+                            <span class="form-hint">Unique business code (letters, numbers, dashes, underscores).</span>
+                            <div class="field-error" id="err-employeeId"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-full-name" class="form-label">Full Name <span class="required">*</span></label>
+                            <input type="text" id="reg-full-name" class="form-control" placeholder="e.g. Johnathan Doe" required maxlength="128">
+                            <div class="field-error" id="err-fullName"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-department" class="form-label">Department</label>
+                            <input type="text" id="reg-department" class="form-control" placeholder="e.g. Engineering, Administration" maxlength="64">
+                            <div class="field-error" id="err-department"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeRegisterModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-register">
+                            <span class="btn-text">Save Employee</span>
+                            <div class="spinner-small" style="display: none;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Employee Modal -->
+        <div class="modal-backdrop" id="edit-modal" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Employee Details</h3>
+                    <button class="modal-close-btn" onclick="closeEditModal()">&times;</button>
+                </div>
+                <form id="edit-form" onsubmit="handleEditSubmit(event)">
+                    <input type="hidden" id="edit-employee-uuid">
+                    <div class="modal-body">
+                        <div id="edit-error-banner" class="alert alert-danger" style="display: none;"></div>
+
+                        <div class="form-group">
+                            <label class="form-label">Employee ID</label>
+                            <input type="text" id="edit-employee-id" class="form-control mono-input" disabled>
+                            <span class="form-hint">Employee ID is an immutable identifier to preserve 3-year attendance integrity.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-full-name" class="form-label">Full Name <span class="required">*</span></label>
+                            <input type="text" id="edit-full-name" class="form-control" required maxlength="128">
+                            <div class="field-error" id="err-edit-fullName"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-department" class="form-label">Department</label>
+                            <input type="text" id="edit-department" class="form-control" maxlength="64">
+                            <div class="field-error" id="err-edit-department"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-edit">
+                            <span class="btn-text">Update Details</span>
+                            <div class="spinner-small" style="display: none;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Deactivation / Activation Confirmation Dialog -->
+        <div class="modal-backdrop" id="confirm-modal" style="display: none;">
+            <div class="modal-dialog modal-dialog-sm">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="confirm-modal-title">Confirm Action</h3>
+                    <button class="modal-close-btn" onclick="closeConfirmModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="confirm-icon-box" id="confirm-icon-box">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <p class="confirm-message" id="confirm-modal-message"></p>
+                    <p class="confirm-subtext" id="confirm-modal-subtext"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                    <button type="button" class="btn" id="confirm-modal-btn">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="js/app.js"></script>
+</body>
+</html>
