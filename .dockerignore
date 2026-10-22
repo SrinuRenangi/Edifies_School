@@ -12,3 +12,6 @@ docs/
 .vscode/
 node_modules/
 dist/
+photos/
+uploads/
+

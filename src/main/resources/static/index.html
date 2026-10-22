@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Attendance Management — Employee Directory</title>
-    <!-- Google Fonts: Inter -->
+    <title>Staff Attendance Management — Enterprise Kiosk & Administration</title>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -30,7 +30,17 @@
             </div>
 
             <nav class="nav-links">
-                <button class="nav-link active" id="nav-employees">
+                <button class="nav-link active" id="nav-dashboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                    <span class="badge-pill badge-pill-active">Phase 12</span>
+                </button>
+                <button class="nav-link" id="nav-employees">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
@@ -39,177 +49,1330 @@
                     </svg>
                     <span>Staff Directory</span>
                 </button>
-                <button class="nav-link placeholder" title="Attendance Kiosk (Planned - Phase 14)" onclick="showPlaceholderNotice('Attendance Kiosk')">
+                <button class="nav-link" id="nav-kiosk">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                         <line x1="8" y1="21" x2="16" y2="21"></line>
                         <line x1="12" y1="17" x2="12" y2="21"></line>
                     </svg>
-                    <span>Kiosk Punch</span>
-                    <span class="badge-pill">Phase 14</span>
+                    <span>Attendance Kiosk</span>
+                    <span class="badge-pill badge-pill-active">Phase 6 Active</span>
                 </button>
-                <button class="nav-link placeholder" title="Live Attendance Monitor (Planned - Phase 17)" onclick="showPlaceholderNotice('Live Monitor')">
+                <button class="nav-link" id="nav-attendance">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
-                    <span>Live Monitor</span>
-                    <span class="badge-pill">Phase 17</span>
+                    <span>Attendance Log</span>
+                    <span class="badge-pill badge-pill-active">Phase 6</span>
                 </button>
-                <button class="nav-link placeholder" title="Monthly Reports & CSV Export (Planned - Phase 18)" onclick="showPlaceholderNotice('Monthly Reports')">
+                <button class="nav-link" id="nav-reports">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="20" x2="18" y2="10"></line>
                         <line x1="12" y1="20" x2="12" y2="4"></line>
                         <line x1="6" y1="20" x2="6" y2="14"></line>
                     </svg>
                     <span>Reports & Export</span>
-                    <span class="badge-pill">Phase 18</span>
+                    <span class="badge-pill badge-pill-active">Phase 8</span>
+                </button>
+                <button class="nav-link" id="nav-storage">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span>Storage & Retention</span>
+                    <span class="badge-pill badge-pill-active">Phase 10</span>
+                </button>
+                <button class="nav-link" id="nav-devices">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <span>Authorized Devices</span>
+                    <span class="badge-pill badge-pill-active">Phase 11</span>
                 </button>
             </nav>
 
-            <div class="nav-status">
-                <span class="pulse-indicator"></span>
-                <span class="status-label">PostgreSQL 17 Active</span>
+            <div class="nav-status-group">
+                <div id="admin-user-info" class="admin-user-pill" style="display: none;">
+                    <span class="admin-user-name" id="admin-user-name">Administrator</span>
+                    <button class="btn btn-secondary btn-sm" id="btn-admin-logout" onclick="handleAdminLogout()">Logout</button>
+                </div>
+                <div class="nav-status">
+                    <span class="pulse-indicator"></span>
+                    <span class="status-label">PostgreSQL 17 Active</span>
+                </div>
             </div>
         </header>
 
         <!-- Main Content Area -->
         <main class="main-container">
-            <!-- Page Header with Summary Stats -->
-            <section class="page-header">
-                <div>
-                    <h1 class="page-title">Employee Directory</h1>
-                    <p class="page-description">Manage staff profiles, unique employee IDs, and active status for attendance verification.</p>
-                </div>
-                <button class="btn btn-primary" id="btn-open-register-modal">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    <span>Register Employee</span>
-                </button>
-            </section>
 
-            <!-- Metrics Summary Cards -->
-            <section class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon stat-blue">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                        </svg>
+            <!-- ================= VIEW 1: ADMIN LOGIN VIEW ================= -->
+            <section id="view-admin-login" class="auth-view" style="display: none;">
+                <div class="auth-card card">
+                    <div class="auth-header">
+                        <div class="auth-icon-circle">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <h2 class="auth-title">Administrator Authentication</h2>
+                        <p class="auth-subtitle">Sign in to manage employees, reset staff PINs, and configure attendance rules.</p>
                     </div>
-                    <div>
-                        <div class="stat-value" id="stat-total">0</div>
-                        <div class="stat-label">Total Registered Staff</div>
-                    </div>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon stat-green">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="stat-value" id="stat-active">0</div>
-                        <div class="stat-label">Active (Eligible for Punch)</div>
-                    </div>
-                </div>
+                    <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+                        <div id="admin-login-error" class="alert alert-danger" style="display: none;"></div>
 
-                <div class="stat-card">
-                    <div class="stat-icon stat-amber">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="stat-value" id="stat-inactive">0</div>
-                        <div class="stat-label">Inactive (History Preserved)</div>
-                    </div>
+                        <div class="form-group">
+                            <label for="admin-username" class="form-label">Username</label>
+                            <input type="text" id="admin-username" class="form-control" placeholder="admin" required autocomplete="username">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="admin-password" class="form-label">Password</label>
+                            <input type="password" id="admin-password" class="form-control" placeholder="••••••••••••" required autocomplete="current-password">
+                        </div>
+
+                        <div class="auth-actions">
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-submit-admin-login">
+                                <span class="btn-text">Sign In to Dashboard</span>
+                                <div class="spinner-small" style="display: none;"></div>
+                            </button>
+                        </div>
+
+                        <div class="auth-footer-hint">
+                            <span>Default Initial Credentials: <code>admin</code> / <code>Admin@12345</code></span>
+                        </div>
+                    </form>
                 </div>
             </section>
 
-            <!-- Action Controls: Search & Filter -->
-            <section class="filter-bar">
-                <div class="search-box">
-                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input type="text" id="search-input" placeholder="Search by name, employee ID, or department..." autocomplete="off">
-                    <button class="clear-search-btn" id="clear-search-btn" style="display: none;">&times;</button>
+            <!-- ================= VIEW: ADMIN DASHBOARD (PHASE 12) ================= -->
+            <section id="view-admin-dashboard">
+                <!-- Dashboard Header Bar -->
+                <div class="dash-header-bar">
+                    <div class="dash-title-group">
+                        <div class="dash-title-badge">
+                            <span class="live-dot-pulse"></span>
+                            <span>Live Operational Overview</span>
+                        </div>
+                        <h1 class="page-title">Attendance Dashboard</h1>
+                        <p class="page-description">Real-time presence, work-date metrics, operational alerts, and administrative quick actions.</p>
+                    </div>
+
+                    <div class="dash-controls-group">
+                        <div class="dash-date-picker-box">
+                            <label for="dash-work-date-select" class="dash-control-label">Work Date (Asia/Kolkata):</label>
+                            <input type="date" id="dash-work-date-select" class="form-control form-control-sm" title="Select work date to inspect">
+                        </div>
+                        <div class="dash-action-buttons">
+                            <button class="btn btn-secondary btn-sm" id="btn-dash-refresh" onclick="refreshDashboard()" title="Refresh summary data">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                                <span>Refresh</span>
+                            </button>
+                            <span id="dash-last-updated-text" class="dash-meta-badge">Updated: Just now</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="filter-controls">
-                    <label for="status-filter" class="filter-label">Filter Status:</label>
-                    <select id="status-filter" class="custom-select">
-                        <option value="ALL">All Staff</option>
-                        <option value="ACTIVE" selected>Active Only</option>
-                        <option value="INACTIVE">Inactive Only</option>
-                    </select>
+                <!-- 5 Metrics Summary Cards Grid -->
+                <section class="stats-grid mb-4">
+                    <!-- 1. Active Staff -->
+                    <div class="stat-card">
+                        <div class="stat-icon stat-blue">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="dash-stat-active-emp">--</div>
+                            <div class="stat-label">Active Employees</div>
+                            <div class="stat-subtext" id="dash-stat-total-emp">Total Staff: --</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Currently Checked In -->
+                    <div class="stat-card stat-card-highlight-green">
+                        <div class="stat-icon stat-green">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="8.5" cy="7" r="4"></circle>
+                                <polyline points="17 11 19 13 23 9"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value text-green" id="dash-stat-checked-in">--</div>
+                            <div class="stat-label">Currently Checked In</div>
+                            <div class="stat-subtext text-green"><span class="pulse-indicator"></span> Live Presence</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Completed Today -->
+                    <div class="stat-card">
+                        <div class="stat-icon stat-blue">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="dash-stat-completed">--</div>
+                            <div class="stat-label">Completed Sessions</div>
+                            <div class="stat-subtext">Checked out today</div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Attention Required -->
+                    <div class="stat-card stat-card-highlight-amber">
+                        <div class="stat-icon stat-amber">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value text-amber" id="dash-stat-attention">--</div>
+                            <div class="stat-label">Requires Attention</div>
+                            <div class="stat-subtext" id="dash-stat-attention-sub">Stale or Auto-Closed</div>
+                        </div>
+                    </div>
+
+                    <!-- 5. No Recorded Attendance -->
+                    <div class="stat-card">
+                        <div class="stat-icon stat-amber" style="background: rgba(148, 163, 184, 0.1); color: #94a3b8;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="dash-stat-not-checked-in">--</div>
+                            <div class="stat-label">No Recorded Attendance</div>
+                            <div class="stat-subtext">Active staff without punches</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Actions Bar -->
+                <div class="dash-quick-actions-bar card mb-4 p-3">
+                    <div class="dash-quick-actions-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                        <span>Operational Quick Actions</span>
+                    </div>
+                    <div class="dash-quick-actions-buttons">
+                        <button class="btn btn-outline-primary btn-sm" onclick="openRegisterModal()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>Register Employee</span>
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="openManualAttendanceModal()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            <span>Record Manual Attendance</span>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="switchView('ATTENDANCE')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>View Full Attendance Log</span>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="switchView('REPORTS')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                            <span>Monthly Reports</span>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="switchView('DEVICES')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            <span>Manage Kiosks</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fast Employee Search Widget -->
+                <div class="dash-search-container card mb-4 p-3">
+                    <div class="dash-search-header">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <span style="font-weight: 600; font-size: 0.95rem;">Quick Employee Finder</span>
+                        </div>
+                        <span class="text-muted" style="font-size: 0.8rem;">Search by employee ID, full name, or department</span>
+                    </div>
+                    <div class="dash-search-input-wrap mt-2">
+                        <input type="text" id="dash-employee-search-input" class="form-control" placeholder="Type employee name or ID (e.g. EMP001, Ada Lovelace)..." autocomplete="off">
+                    </div>
+                    <div id="dash-employee-search-results" class="dash-search-results-dropdown" style="display: none;"></div>
+                </div>
+
+                <!-- Two-Column Layout: Left (Live Attendance + Attention Items) / Right (Recent Activity Feed) -->
+                <div class="dash-content-grid">
+                    <!-- Left Column: Today's Attendance & Attention-Required -->
+                    <div class="dash-main-col">
+                        <!-- Attention-Required Sessions Card (Hidden when 0) -->
+                        <div id="dash-attention-card" class="card mb-4 p-3 dash-attention-panel" style="display: none;">
+                            <div class="dash-card-header">
+                                <div class="dash-card-title-group">
+                                    <span class="badge-status badge-attention">Attention Needed</span>
+                                    <h3 class="dash-card-title">Sessions Requiring Review</h3>
+                                </div>
+                                <span class="badge-pill" id="dash-attention-count-badge">0 Issues</span>
+                            </div>
+                            <div class="table-responsive mt-2">
+                                <table class="table custom-table" id="dash-attention-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Staff Member</th>
+                                            <th>Work Date</th>
+                                            <th>Issue</th>
+                                            <th>Recommendation</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dash-attention-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Today's Attendance Table Card -->
+                        <div class="card p-3 mb-4">
+                            <div class="dash-card-header">
+                                <div>
+                                    <h3 class="dash-card-title">Today's Attendance Roster</h3>
+                                    <p class="text-muted" style="font-size: 0.8rem; margin: 0;">Authoritative records for selected work date</p>
+                                </div>
+                                <div class="dash-roster-filter-pills">
+                                    <button class="roster-pill active" id="pill-filter-all" onclick="filterDashboardRoster('ALL')">All</button>
+                                    <button class="roster-pill" id="pill-filter-in" onclick="filterDashboardRoster('CHECKED_IN')">Checked In (<span id="pill-count-in">0</span>)</button>
+                                    <button class="roster-pill" id="pill-filter-out" onclick="filterDashboardRoster('CHECKED_OUT')">Completed (<span id="pill-count-out">0</span>)</button>
+                                    <button class="roster-pill" id="pill-filter-autoclosed" onclick="filterDashboardRoster('AUTO_CLOSED')">Auto-Closed (<span id="pill-count-autoclosed">0</span>)</button>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mt-3">
+                                <table class="table custom-table" id="dash-roster-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Staff</th>
+                                            <th>Department</th>
+                                            <th>Check-In</th>
+                                            <th>Check-Out</th>
+                                            <th>Status</th>
+                                            <th>Duration</th>
+                                            <th>Verification</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dash-roster-tbody">
+                                        <tr><td colspan="8" class="text-center py-4 text-muted">Loading attendance roster...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Recent Activity Feed -->
+                    <div class="dash-side-col">
+                        <div class="card p-3 mb-4">
+                            <div class="dash-card-header">
+                                <div class="dash-card-title-group">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                    </svg>
+                                    <h3 class="dash-card-title">Recent Activity</h3>
+                                </div>
+                                <span class="badge-pill">Latest 15</span>
+                            </div>
+                            <div class="dash-timeline-feed mt-3" id="dash-activity-feed">
+                                <div class="text-center py-4 text-muted">Loading recent activities...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Employee Table / State Container -->
-            <section class="table-container card">
-                <!-- Loading State -->
-                <div id="loading-spinner" class="state-box" style="display: none;">
-                    <div class="spinner"></div>
-                    <p class="state-text">Loading employee records from PostgreSQL...</p>
-                </div>
-
-                <!-- Error State -->
-                <div id="error-box" class="state-box error-state" style="display: none;">
-                    <div class="state-icon error-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
+            <!-- ================= VIEW 2: STAFF DIRECTORY VIEW ================= -->
+            <section id="view-admin-directory" style="display: none;">
+                <!-- Page Header with Summary Stats -->
+                <section class="page-header">
+                    <div>
+                        <h1 class="page-title">Employee Directory</h1>
+                        <p class="page-description">Manage staff profiles, unique employee IDs, PIN security, and active status for attendance verification.</p>
                     </div>
-                    <h3 class="state-title">Failed to load employees</h3>
-                    <p class="state-text" id="error-message">Could not connect to the backend server.</p>
-                    <button class="btn btn-secondary" onclick="loadEmployees()">Try Again</button>
-                </div>
-
-                <!-- Empty State -->
-                <div id="empty-state" class="state-box" style="display: none;">
-                    <div class="state-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <line x1="19" y1="8" x2="19" y2="14"></line>
-                            <line x1="22" y1="11" x2="16" y2="11"></line>
+                    <button class="btn btn-primary" id="btn-open-register-modal">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
+                        <span>Register Employee</span>
+                    </button>
+                </section>
+
+                <!-- Metrics Summary Cards -->
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-blue">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="stat-total">0</div>
+                            <div class="stat-label">Total Registered Staff</div>
+                        </div>
                     </div>
-                    <h3 class="state-title">No employees found</h3>
-                    <p class="state-text">Get started by registering your first employee in the system.</p>
-                    <button class="btn btn-primary" onclick="openRegisterModal()">Register First Employee</button>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-green">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="stat-active">0</div>
+                            <div class="stat-label">Active (Eligible for Punch)</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-amber">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="stat-inactive">0</div>
+                            <div class="stat-label">Inactive (Attendance Blocked)</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Action Controls: Search & Filter -->
+                <section class="filter-bar">
+                    <div class="search-box">
+                        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="search-input" placeholder="Search by name, employee ID, or department..." autocomplete="off">
+                        <button class="clear-search-btn" id="clear-search-btn" style="display: none;">&times;</button>
+                    </div>
+
+                    <div class="filter-controls">
+                        <label for="status-filter" class="filter-label">Filter Status:</label>
+                        <select id="status-filter" class="custom-select">
+                            <option value="ALL">All Staff</option>
+                            <option value="ACTIVE" selected>Active Only</option>
+                            <option value="INACTIVE">Inactive Only</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Employee Table / State Container -->
+                <section class="table-container card">
+                    <!-- Loading State -->
+                    <div id="loading-spinner" class="state-box" style="display: none;">
+                        <div class="spinner"></div>
+                        <p class="state-text">Loading employee records from PostgreSQL...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="error-box" class="state-box error-state" style="display: none;">
+                        <div class="state-icon error-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <h3 class="state-title">Failed to load employees</h3>
+                        <p class="state-text" id="error-message">Could not connect to the backend server.</p>
+                        <button class="btn btn-secondary" onclick="loadEmployees()">Try Again</button>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="state-box" style="display: none;">
+                        <div class="state-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <line x1="19" y1="8" x2="19" y2="14"></line>
+                                <line x1="22" y1="11" x2="16" y2="11"></line>
+                            </svg>
+                        </div>
+                        <h3 class="state-title">No employees found</h3>
+                        <p class="state-text">Get started by registering your first employee in the system.</p>
+                        <button class="btn btn-primary" onclick="openRegisterModal()">Register First Employee</button>
+                    </div>
+
+                    <!-- Table View -->
+                    <div class="table-responsive" id="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Full Name</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Registration Date</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employee-table-body">
+                                <!-- Populated dynamically by app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+
+            <!-- ================= VIEW 4: ADMIN ATTENDANCE LOG VIEW ================= -->
+            <section id="view-admin-attendance" style="display: none;">
+                <section class="page-header">
+                    <div>
+                        <h1 class="page-title">Attendance Log</h1>
+                        <p class="page-description">Authoritative daily attendance sessions and server timestamps recorded directly by the attendance engine.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn btn-primary" onclick="openManualAttendanceModal()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>+ Manual Entry</span>
+                        </button>
+                        <button class="btn btn-secondary" id="btn-export-attendance-csv" onclick="exportAttendanceRecordsCsv()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span>Export CSV</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadAttendanceRecords(0)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            <span>Refresh Log</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Filter Controls -->
+                <div class="card mb-4 p-3">
+                    <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; align-items: flex-end;">
+                        <div class="form-group mb-0">
+                            <label class="form-label">Search Staff</label>
+                            <input type="text" id="att-search-input" class="form-control" placeholder="Name, ID, dept...">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label">From Date</label>
+                            <input type="date" id="att-from-date" class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label">To Date</label>
+                            <input type="date" id="att-to-date" class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label">Status</label>
+                            <select id="att-status-filter" class="form-control">
+                                <option value="">All Statuses</option>
+                                <option value="CHECKED_IN">Checked In (Open)</option>
+                                <option value="CHECKED_OUT">Checked Out (Closed)</option>
+                                <option value="AUTO_CLOSED">Auto Closed (Cut-off)</option>
+                                <option value="VOIDED">Voided (Erroneous)</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-primary" onclick="applyAttendanceFilters()">Filter</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetAttendanceFilters()">Reset</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setAttendanceDateQuick('today')" title="Filter Today">Today</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setAttendanceDateQuick('yesterday')" title="Filter Yesterday">Yesterday</button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Table View -->
-                <div class="table-responsive" id="table-wrapper">
+                <!-- Attendance Table -->
+                <div class="table-responsive" id="att-table-wrapper">
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th>Work Date</th>
                                 <th>Employee ID</th>
                                 <th>Full Name</th>
                                 <th>Department</th>
+                                <th>Check-In (IST)</th>
+                                <th>Check-Out (IST)</th>
+                                <th>Duration</th>
                                 <th>Status</th>
-                                <th>Registration Date</th>
-                                <th class="text-right">Actions</th>
+                                <th>Photo Evidence</th>
+                                <th>Actions & Audit</th>
                             </tr>
                         </thead>
-                        <tbody id="employee-table-body">
-                            <!-- Populated dynamically by app.js -->
+                        <tbody id="attendance-table-body">
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Empty State -->
+                <div id="att-empty-state" class="empty-state" style="display: none;">
+                    <h3>No Attendance Records Found</h3>
+                    <p>No punches match the selected filters or date range.</p>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-bar mt-3" id="att-pagination" style="display: none; display: flex; justify-content: space-between; align-items: center;">
+                    <button class="btn btn-secondary btn-sm" id="btn-att-prev" onclick="changeAttendancePage(-1)">&larr; Previous</button>
+                    <span id="att-page-info" class="pagination-info text-muted">Page 1 of 1</span>
+                    <button class="btn btn-secondary btn-sm" id="btn-att-next" onclick="changeAttendancePage(1)">Next &rarr;</button>
+                </div>
+            </section>
+
+            <!-- ================= VIEW 5: ADMIN REPORTS & MONTHLY VIEW ================= -->
+            <section id="view-admin-reports" style="display: none;">
+                <section class="page-header">
+                    <div>
+                        <h1 class="page-title">Monthly Reports & Staff Summaries</h1>
+                        <p class="page-description">Database-backed monthly attendance summaries, session statistics, incomplete punch audits, and CSV data exports.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn btn-secondary" id="btn-export-monthly-csv" onclick="exportMonthlyReportCsv()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span>Export Summary CSV</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadMonthlyReport()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            <span>Refresh Report</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Report Filter Bar -->
+                <div class="card mb-4 p-3">
+                    <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
+                        <div class="form-group mb-0">
+                            <label class="form-label">Month</label>
+                            <select id="report-month-select" class="form-control">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label">Year</label>
+                            <select id="report-year-select" class="form-control">
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label">Filter Staff</label>
+                            <input type="text" id="report-staff-search" class="form-control" placeholder="Search staff name or code...">
+                        </div>
+                        <div class="filter-actions" style="display: flex; gap: 0.5rem;">
+                            <button type="button" class="btn btn-primary" onclick="loadMonthlyReport()">Generate</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetReportFilters()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Summary Cards -->
+                <div class="stats-grid mb-4" id="report-kpi-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Total Staff</span>
+                        <span class="stat-value" id="kpi-total-staff">--</span>
+                        <span class="stat-subtitle">Included in Monthly Scope</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Recorded Sessions</span>
+                        <span class="stat-value text-primary" id="kpi-total-sessions">--</span>
+                        <span class="stat-subtitle">Total Punches in Month</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Completed Shifts</span>
+                        <span class="stat-value text-success" id="kpi-completed-sessions">--</span>
+                        <span class="stat-subtitle">Both In & Out Logged</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Incomplete / Open</span>
+                        <span class="stat-value text-warning" id="kpi-incomplete-sessions">--</span>
+                        <span class="stat-subtitle">Missing Checkout or Cut-off</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Total Work Duration</span>
+                        <span class="stat-value" id="kpi-total-duration">--</span>
+                        <span class="stat-subtitle">Cumulative Stored Hours</span>
+                    </div>
+                </div>
+
+                <!-- Monthly Employee Summary Table -->
+                <div class="table-responsive card" id="report-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Staff Code</th>
+                                <th>Full Name</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Total Shifts</th>
+                                <th>Completed</th>
+                                <th>Incomplete</th>
+                                <th>Total Work Duration</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Report Empty State -->
+                <div id="report-empty-state" class="empty-state" style="display: none;">
+                    <h3>No Report Data Available</h3>
+                    <p>No employees or attendance records match the selected month and filters.</p>
+                </div>
+            </section>
+
+            <!-- ================= VIEW 6: STORAGE & PHOTO RETENTION VIEW ================= -->
+            <section id="view-admin-storage" style="display: none;">
+                <section class="page-header">
+                    <div>
+                        <h1 class="page-title">Photo Storage & Retention Policy</h1>
+                        <p class="page-description">Manage photo retention schedules, execute safe multi-phase cleanups, inspect storage health, and detect orphan files.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn btn-secondary" id="btn-refresh-storage" onclick="refreshStorageDashboard()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            <span>Refresh Health</span>
+                        </button>
+                        <button class="btn btn-primary" id="btn-run-dryrun" onclick="handleRunDryRun()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <span>Preview Cleanup (Dry Run)</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Storage Health & Guard Metrics -->
+                <div class="stats-grid mb-4">
+                    <!-- Disk Space Card -->
+                    <div class="stat-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                            <span class="stat-label">Disk Storage Space</span>
+                            <span class="badge" id="storage-health-badge">NORMAL</span>
+                        </div>
+                        <span class="stat-value" id="storage-free-space">--</span>
+                        <div class="storage-meter-container mt-2">
+                            <div class="storage-meter-bar" id="storage-meter-bar" style="width: 0%;"></div>
+                        </div>
+                        <span class="stat-subtitle" id="storage-total-space">Usable / Total Capacity: --</span>
+                    </div>
+
+                    <!-- Photo Assets Count -->
+                    <div class="stat-card">
+                        <span class="stat-label">Active Stored Photos</span>
+                        <span class="stat-value text-primary" id="storage-active-photos">--</span>
+                        <span class="stat-subtitle" id="storage-photos-size">Total Size: --</span>
+                    </div>
+
+                    <!-- Purged & Removed Photos -->
+                    <div class="stat-card">
+                        <span class="stat-label">Purged (3-Yr Audit Kept)</span>
+                        <span class="stat-value text-success" id="storage-purged-photos">--</span>
+                        <span class="stat-subtitle" id="storage-missing-photos">Missing: 0 &bull; Failed: 0</span>
+                    </div>
+
+                    <!-- Temporary Files -->
+                    <div class="stat-card">
+                        <span class="stat-label">Staging Temp Files</span>
+                        <span class="stat-value text-warning" id="storage-temp-files">--</span>
+                        <span class="stat-subtitle" id="storage-temp-size">Size: --</span>
+                    </div>
+                </div>
+
+                <!-- Two-Column Control Section -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <!-- Panel 1: Policy Configuration -->
+                    <div class="card p-4">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 class="card-title mb-0">Retention Policy Configuration</h3>
+                            <span class="badge badge-pill" id="policy-status-pill">DISABLED</span>
+                        </div>
+                        <p class="text-muted text-sm mb-3">
+                            Photo retention operates independently from attendance history. Attendance timestamps and correction audit logs are retained for at least 3 years regardless of photo purging.
+                        </p>
+                        <form id="storage-policy-form" onsubmit="handleSaveRetentionPolicy(event)">
+                            <div class="form-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="policy-enabled-checkbox">
+                                    <span class="checkmark"></span>
+                                    <span style="font-weight: 600; font-size: 0.95rem;">Enable Automatic Scheduled Cleanup</span>
+                                </label>
+                                <span class="form-hint">Runs daily at 02:00 AM (Asia/Kolkata). Safe default is DISABLED until explicitly approved by an administrator.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="policy-retention-days" class="form-label">Retention Duration (Days) <span class="required">*</span></label>
+                                <input type="number" id="policy-retention-days" class="form-control" min="1" max="3650" value="90" required>
+                                <span class="form-hint">Photos older than this threshold (from server creation time) become eligible for safe cleanup.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="policy-batch-size" class="form-label">Batch Size Limit</label>
+                                <input type="number" id="policy-batch-size" class="form-control" min="1" max="500" value="100">
+                                <span class="form-hint">Maximum items processed per cleanup cycle to avoid locking or resource spikes.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="policy-notes" class="form-label">Policy Documentation / Approval Notes</label>
+                                <textarea id="policy-notes" class="form-control" rows="2" maxlength="500" placeholder="e.g. Approved 90-day photo retention per company compliance guidelines."></textarea>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                                <span class="text-xs text-muted" id="policy-updated-info">Last updated: --</span>
+                                <button type="submit" class="btn btn-primary" id="btn-save-policy">
+                                    <span class="btn-text">Save Policy</span>
+                                    <div class="spinner-small" style="display: none;"></div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Panel 2: Dry Run & Orphan Diagnostics -->
+                    <div class="card p-4">
+                        <h3 class="card-title mb-2">Storage Diagnostics & Actions</h3>
+                        <p class="text-muted text-sm mb-3">
+                            Safely simulate cleanup before executing destructive filesystem operations, or scan storage for untracked orphans.
+                        </p>
+
+                        <!-- Dry Run Results Box -->
+                        <div id="dry-run-results-box" class="card p-3 mb-3" style="background: var(--bg-main, #f8fafc); border: 1px solid var(--border-color, #e2e8f0); display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong>Dry Run Simulation Results</strong>
+                                <span class="badge badge-info" id="dry-run-cutoff-time">Cutoff: --</span>
+                            </div>
+                            <div class="stats-grid mt-2 mb-2" style="grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                <div class="stat-card p-2">
+                                    <span class="stat-label text-xs">Eligible for Purge</span>
+                                    <span class="stat-value" style="font-size: 1.25rem;" id="dry-run-eligible-count">0</span>
+                                </div>
+                                <div class="stat-card p-2">
+                                    <span class="stat-label text-xs">Estimated Bytes</span>
+                                    <span class="stat-value text-primary" style="font-size: 1.25rem;" id="dry-run-eligible-bytes">0 KB</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-muted mb-2" id="dry-run-details-text">Summary details here.</p>
+                            <button type="button" class="btn btn-danger btn-sm" id="btn-execute-cleanup-trigger" onclick="openCleanupConfirmModal()">
+                                Execute Safe Cleanup Now
+                            </button>
+                        </div>
+
+                        <!-- Orphan Scanner Controls & Results -->
+                        <div class="mt-3">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" class="btn btn-secondary btn-sm" id="btn-scan-orphans" onclick="handleScanOrphans()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                    <span>Scan Orphaned & Temp Files</span>
+                                </button>
+                            </div>
+
+                            <div id="orphan-results-box" class="mt-2 text-xs text-muted p-2" style="background: #f1f5f9; border-radius: var(--radius-sm); display: none;">
+                                <div>Abandoned Temp Cleaned: <strong id="orphan-temp-cleaned">0</strong></div>
+                                <div>Unregistered Storage Files (Protected): <strong id="orphan-unregistered-count">0</strong></div>
+                                <div>DB Records with Missing Files: <strong id="orphan-missing-db-count">0</strong></div>
+                                <div class="mt-1 text-muted" id="orphan-scan-notes">--</div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3 text-xs" style="margin-bottom: 0;">
+                            <strong>Safety Guarantee:</strong> Unregistered permanent files are NEVER automatically destroyed. They are flagged for administrative inspection to prevent accidental data loss.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cleanup Audit History Table -->
+                <div class="card">
+                    <div class="card-header p-3" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 class="card-title mb-0">Cleanup Audit History</h3>
+                            <span class="text-xs text-muted">Immutable log of all automated scheduled runs, manual cleanups, and dry-run simulations.</span>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="loadCleanupHistory()">Refresh History</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Started At</th>
+                                    <th>Run Type</th>
+                                    <th>Status</th>
+                                    <th>Examined</th>
+                                    <th>Purged</th>
+                                    <th>Bytes Reclaimed</th>
+                                    <th>Temp Cleaned</th>
+                                    <th>Duration</th>
+                                    <th>Summary</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cleanup-history-table-body">
+                                <tr><td colspan="9" class="text-center text-muted p-4">Loading cleanup history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= VIEW 6: ADMIN DEVICE MANAGEMENT VIEW ================= -->
+            <section id="view-admin-devices" style="display: none;">
+                <section class="page-header">
+                    <div>
+                        <h1 class="page-title">Authorized Workstations & Devices</h1>
+                        <p class="page-description">Secure kiosk device pairing, access control, and revocation. Only authorized workstations may operate the attendance terminal.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn btn-primary" id="btn-open-pair-device-modal" onclick="openPairDeviceModal()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>+ Pair New Device</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadAdminDevices()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            <span>Refresh</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Device Overview Stats -->
+                <div class="stats-grid mb-4">
+                    <div class="stat-card card">
+                        <div class="stat-label">Total Paired Devices</div>
+                        <div class="stat-value" id="stat-devices-total">0</div>
+                        <div class="stat-subtext">All historical workstation pairings</div>
+                    </div>
+                    <div class="stat-card card">
+                        <div class="stat-label">Active Workstations</div>
+                        <div class="stat-value text-success" id="stat-devices-active">0</div>
+                        <div class="stat-subtext">Currently authorized for kiosk attendance</div>
+                    </div>
+                    <div class="stat-card card">
+                        <div class="stat-label">Revoked Devices</div>
+                        <div class="stat-value text-danger" id="stat-devices-revoked">0</div>
+                        <div class="stat-subtext">Access permanently disabled</div>
+                    </div>
+                </div>
+
+                <!-- Devices Table Card -->
+                <div class="card mb-4 p-4">
+                    <h3 class="mb-3" style="font-size: 1.15rem; font-weight: 700;">Registered Workstations</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Device Name</th>
+                                    <th>Identifier</th>
+                                    <th>Status</th>
+                                    <th>Paired At (IST)</th>
+                                    <th>Last Seen (IST)</th>
+                                    <th>Approved By</th>
+                                    <th>Revocation Details</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devices-table-body">
+                                <tr><td colspan="8" class="text-center text-muted p-4">Loading registered devices...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Device Audit Trail Card -->
+                <div class="card p-4">
+                    <div style="display: flex; justify-content: space-between; align-items: center;" class="mb-3">
+                        <div>
+                            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem;">Workstation Security Audit Trail</h3>
+                            <p class="text-muted text-xs mb-0">Authoritative, immutable event log of all pairing challenges, completions, authentications, and revocations.</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="loadDeviceAuditLogs()">Refresh Audit</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp (IST)</th>
+                                    <th>Device</th>
+                                    <th>Event Type</th>
+                                    <th>Actor</th>
+                                    <th>IP Address</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="device-audit-table-body">
+                                <tr><td colspan="6" class="text-center text-muted p-4">Loading device audit events...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= VIEW 3: KIOSK MODE VIEW ================= -->
+            <section id="view-kiosk" class="kiosk-view" style="display: none;">
+                <!-- Kiosk Unpaired / Bootstrap State Screen -->
+                <div id="kiosk-unpaired-state" class="kiosk-panel card" style="display: none;">
+                    <div class="kiosk-unpaired-banner">
+                        <div class="kiosk-lock-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <div class="kiosk-badge mb-2">ACCESS RESTRICTED</div>
+                        <h2 class="kiosk-title" style="margin-bottom: 0.5rem;">Workstation Authorization Required</h2>
+                        <p class="kiosk-subtitle" style="max-width: 540px; margin-bottom: 1.5rem;">
+                            This device or browser is not registered to operate the Staff Attendance Kiosk.
+                            An administrator must authorize this terminal by providing a one-time pairing code.
+                        </p>
+
+                        <div id="kiosk-pairing-error" class="alert alert-danger" style="display: none; width: 100%; max-width: 440px;"></div>
+
+                        <form id="kiosk-pairing-form" onsubmit="handleKioskPairingSubmit(event)" style="width: 100%; max-width: 440px;">
+                            <div class="form-group text-left">
+                                <label for="kiosk-pairing-code-input" class="form-label" style="text-align: left;">One-Time Pairing Code</label>
+                                <input type="text" id="kiosk-pairing-code-input" class="form-control mono-input form-control-lg text-center" 
+                                       placeholder="e.g. 7XKP-M29B" maxlength="12" autocomplete="off" autofocus 
+                                       style="letter-spacing: 0.2rem; font-size: 1.5rem; text-transform: uppercase;">
+                                <span class="form-hint text-center">Codes are single-use and expire 10 minutes after generation.</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg btn-block mt-3" id="btn-submit-kiosk-pairing">
+                                <span class="btn-text">Authorize This Workstation</span>
+                                <div class="spinner-small" style="display: none;"></div>
+                            </button>
+                        </form>
+
+                        <div class="mt-4 text-xs text-muted">
+                            Authorized Administrator? Sign into <a href="#" onclick="switchView('DIRECTORY'); return false;">Admin Dashboard</a> to generate a pairing code.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kiosk Neutral Entry Screen -->
+                <div id="kiosk-neutral-state" class="kiosk-panel card">
+                    <div class="kiosk-header">
+                        <div id="kiosk-workstation-badge" class="kiosk-device-indicator mb-2" style="display: none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            <span>Authorized Terminal: <strong id="kiosk-workstation-name">Front Desk</strong></span>
+                            <button type="button" class="btn btn-xs btn-secondary" onclick="unpairKioskWorkstation()" title="Unpair this device" style="margin-left: 0.5rem; padding: 0.15rem 0.4rem; font-size: 0.7rem;">Unpair</button>
+                        </div>
+                        <div class="kiosk-badge">ATTENDANCE KIOSK</div>
+                        <h2 class="kiosk-title">Staff Identification & PIN Verification</h2>
+                        <p class="kiosk-subtitle">Enter your Employee ID and secret numeric PIN to verify eligibility for attendance.</p>
+                    </div>
+
+                    <div id="kiosk-error-banner" class="alert alert-danger" style="display: none;"></div>
+
+                    <div class="kiosk-body-layout">
+                        <!-- Left: Form Input Fields -->
+                        <div class="kiosk-inputs-pane">
+                            <div class="form-group">
+                                <label for="kiosk-employee-id" class="form-label">Employee ID</label>
+                                <input type="text" id="kiosk-employee-id" class="form-control mono-input form-control-lg" placeholder="e.g. EMP-101" autocomplete="off" autofocus>
+                                <span class="form-hint">Enter your designated alphanumeric staff code.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="kiosk-pin" class="form-label">Security PIN (4–6 Digits)</label>
+                                <div class="pin-display-wrapper">
+                                    <input type="password" id="kiosk-pin" class="form-control mono-input form-control-lg pin-input" placeholder="••••" maxlength="6" readonly>
+                                    <button type="button" class="btn-clear-pin" onclick="clearKioskPin()" title="Clear PIN">&times;</button>
+                                </div>
+                                <span class="form-hint">Use the touchscreen keypad on the right or physical keyboard.</span>
+                            </div>
+
+                            <button type="button" class="btn btn-primary btn-lg btn-block mt-4" id="btn-kiosk-verify" onclick="handleKioskAuthenticate()">
+                                <span class="btn-text">Verify & Start Attendance</span>
+                                <div class="spinner-small" style="display: none;"></div>
+                            </button>
+                        </div>
+
+                        <!-- Right: Touchscreen Numeric Keypad -->
+                        <div class="kiosk-keypad-pane">
+                            <div class="keypad-grid">
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('1')">1</button>
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('2')">2</button>
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('3')">3</button>
+
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('4')">4</button>
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('5')">5</button>
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('6')">6</button>
+
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('7')">7</button>
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('8')">8</button>
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('9')">9</button>
+
+                                <button type="button" class="keypad-btn keypad-btn-action" onclick="clearKioskPin()">C</button>
+                                <button type="button" class="keypad-btn" onclick="appendKioskDigit('0')">0</button>
+                                <button type="button" class="keypad-btn keypad-btn-action" onclick="backspaceKioskPin()">⌫</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kiosk Authenticated State Screen -->
+                <div id="kiosk-authenticated-state" class="kiosk-panel card" style="display: none;">
+                    <div class="kiosk-auth-card">
+                        <div class="kiosk-avatar">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+
+                        <div class="kiosk-auth-details">
+                            <span class="badge badge-active mb-2">VERIFIED ACTIVE EMPLOYEE</span>
+                            <h2 class="kiosk-auth-name" id="kiosk-auth-name">Staff Member</h2>
+                            <p class="kiosk-auth-code">
+                                Employee ID: <strong id="kiosk-auth-id">EMP-001</strong> &bull; Department: <strong id="kiosk-auth-dept">General</strong>
+                            </p>
+                        </div>
+
+                        <!-- Dynamic Attendance Engine Panel -->
+                        <div id="kiosk-attendance-panel" class="attendance-action-panel mt-4 mb-4">
+                            <!-- Loading Indicator -->
+                            <div id="kiosk-attendance-loading" class="attendance-loading p-4 text-center" style="display: none;">
+                                <div class="spinner-small" style="display: inline-block;"></div>
+                                <span class="ml-2">Evaluating attendance status from server...</span>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div id="kiosk-attendance-error" class="alert alert-danger" style="display: none;"></div>
+
+                            <!-- State 1: Ready to Check In -->
+                            <div id="kiosk-action-checkin" class="attendance-action-card card-checkin" style="display: none;">
+                                <div class="action-card-header">
+                                    <div class="action-icon-circle action-icon-in">
+                                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                            <polyline points="10 17 15 12 10 7"></polyline>
+                                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="badge badge-action-in">READY FOR CHECK-IN</span>
+                                        <h3 class="action-title">Start Daily Shift</h3>
+                                        <p class="action-subtitle">Work Date: <strong id="kiosk-work-date-in">--</strong></p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-punch-in btn-block btn-lg" id="btn-kiosk-checkin" onclick="startKioskCamera('CHECK_IN')">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                        <circle cx="12" cy="13" r="4"></circle>
+                                    </svg>
+                                    <span class="btn-text">Proceed to Photo Check-In</span>
+                                    <div class="spinner-small" style="display: none;"></div>
+                                </button>
+                            </div>
+
+                            <!-- State 2: Ready to Check Out -->
+                            <div id="kiosk-action-checkout" class="attendance-action-card card-checkout" style="display: none;">
+                                <div class="action-card-header">
+                                    <div class="action-icon-circle action-icon-out">
+                                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                            <polyline points="16 17 21 12 16 7"></polyline>
+                                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="badge badge-action-out">CURRENTLY CHECKED IN</span>
+                                        <h3 class="action-title">End Daily Shift</h3>
+                                        <p class="action-subtitle">Shift Started: <strong id="kiosk-checkin-time-out">--</strong></p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-punch-out btn-block btn-lg" id="btn-kiosk-checkout" onclick="startKioskCamera('CHECK_OUT')">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                        <circle cx="12" cy="13" r="4"></circle>
+                                    </svg>
+                                    <span class="btn-text">Proceed to Photo Check-Out</span>
+                                    <div class="spinner-small" style="display: none;"></div>
+                                </button>
+                            </div>
+
+                            <!-- State 2.5: Interactive Camera Capture & Photo Preview Panel -->
+                            <div id="kiosk-camera-section" class="kiosk-camera-card" style="display: none;">
+                                <div class="kiosk-camera-header">
+                                    <div class="camera-header-title">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                            <circle cx="12" cy="13" r="4"></circle>
+                                        </svg>
+                                        <span id="kiosk-camera-mode-title">Attendance Photo Evidence</span>
+                                    </div>
+                                    <span class="badge badge-pill badge-pill-active" id="camera-stream-badge">LIVE CAMERA</span>
+                                </div>
+
+                                <!-- Camera Error / Permission Notice Banner -->
+                                <div id="kiosk-camera-error" class="alert alert-danger m-3" style="display: none;">
+                                    <div id="kiosk-camera-error-text">Camera access is required to record attendance. Please allow camera permissions in your browser.</div>
+                                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="retryKioskCamera()">Retry Camera</button>
+                                </div>
+
+                                <!-- Live Stream Viewport with Positioning Guide Overlay -->
+                                <div id="camera-stream-wrapper" class="camera-viewport-wrapper">
+                                    <video id="kiosk-camera-video" class="camera-video-feed" autoplay playsinline muted></video>
+                                    <div class="camera-guide-overlay">
+                                        <div class="camera-face-oval"></div>
+                                        <span class="camera-guide-text">Look directly at camera &bull; Align face in frame</span>
+                                    </div>
+                                </div>
+
+                                <!-- Captured Photo Preview Container -->
+                                <div id="camera-preview-wrapper" class="camera-preview-container" style="display: none;">
+                                    <img id="kiosk-captured-preview" class="captured-preview-img" alt="Captured Attendance Snapshot">
+                                </div>
+
+                                <!-- Controls Pane -->
+                                <div class="camera-controls-pane">
+                                    <!-- Live Stream Controls -->
+                                    <div id="camera-live-controls" class="camera-actions-row">
+                                        <button type="button" class="btn btn-secondary" onclick="cancelKioskCamera()">
+                                            <span>Cancel</span>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-lg" id="btn-camera-capture" onclick="captureKioskPhoto()">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                            <span>Capture Photo</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Captured Preview Controls -->
+                                    <div id="camera-captured-controls" class="camera-actions-row" style="display: none;">
+                                        <button type="button" class="btn btn-secondary" id="btn-camera-retake" onclick="retakeKioskPhoto()">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="1 4 1 10 7 10"></polyline>
+                                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                            </svg>
+                                            <span>Retake</span>
+                                        </button>
+                                        <button type="button" class="btn btn-punch-in btn-lg" id="btn-camera-confirm" onclick="confirmAndSubmitPunch()">
+                                            <span class="btn-text" id="confirm-punch-text">Confirm & Check In</span>
+                                            <div class="spinner-small" style="display: none;"></div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- State 3: Completed Shift (Both In & Out Recorded) -->
+                            <div id="kiosk-action-completed" class="attendance-action-card card-completed" style="display: none;">
+                                <div class="action-card-header">
+                                    <div class="action-icon-circle action-icon-done">
+                                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="badge badge-action-done">SHIFT COMPLETED</span>
+                                        <h3 class="action-title">Attendance Recorded Today</h3>
+                                        <p class="action-subtitle" id="kiosk-completed-summary">In: -- &bull; Out: --</p>
+                                    </div>
+                                </div>
+                                <div class="completed-msg p-2 text-center text-muted">
+                                    <span>Your full attendance has been recorded for today. Have a wonderful rest of your day!</span>
+                                </div>
+                            </div>
+
+                            <!-- State 4: Success Confirmation Banner -->
+                            <div id="kiosk-punch-success" class="punch-success-card p-4 text-center" style="display: none;">
+                                <div class="success-icon-badge mb-3">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <path d="M20 6L9 17l-5-5"></path>
+                                    </svg>
+                                </div>
+                                <h3 id="punch-success-title" class="punch-success-title">Punch Recorded!</h3>
+                                <p id="punch-success-message" class="punch-success-msg">Your attendance timestamp has been saved to PostgreSQL.</p>
+                                <div class="punch-timestamp-box mt-3 mb-3 p-2">
+                                    <span class="timestamp-label text-muted">Authoritative Server Time:</span>
+                                    <span id="punch-server-time" class="timestamp-value font-weight-bold ml-2">--</span>
+                                </div>
+                                <p class="auto-reset-notice text-muted">Kiosk resetting for next staff member in <strong id="punch-reset-countdown">5s</strong></p>
+                            </div>
+                        </div>
+
+                        <!-- Session Countdown Timer Bar -->
+                        <div class="session-timer-box">
+                            <div class="timer-label-row">
+                                <span>Session Security Timeout</span>
+                                <span id="session-timer-text">Resets in 60s</span>
+                            </div>
+                            <div class="timer-track">
+                                <div id="session-timer-bar" class="timer-fill"></div>
+                            </div>
+                        </div>
+
+                        <div class="kiosk-actions-row">
+                            <button type="button" class="btn btn-secondary btn-lg" onclick="resetKioskSession()">
+                                <span>Done / Reset Kiosk Screen</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
+
+        <!-- ================= MODALS ================= -->
 
         <!-- Register Employee Modal -->
         <div class="modal-backdrop" id="register-modal" style="display: none;">
@@ -220,7 +1383,6 @@
                 </div>
                 <form id="register-form" onsubmit="handleRegisterSubmit(event)">
                     <div class="modal-body">
-                        <!-- Server Error Banner -->
                         <div id="register-error-banner" class="alert alert-danger" style="display: none;"></div>
 
                         <div class="form-group">
@@ -240,6 +1402,13 @@
                             <label for="reg-department" class="form-label">Department</label>
                             <input type="text" id="reg-department" class="form-control" placeholder="e.g. Engineering, Administration" maxlength="64">
                             <div class="field-error" id="err-department"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-pin" class="form-label">Attendance PIN (4–6 Digits) <span class="required">*</span></label>
+                            <input type="password" id="reg-pin" class="form-control mono-input" placeholder="••••" required minlength="4" maxlength="6" pattern="^[0-9]{4,6}$">
+                            <span class="form-hint">Confidential 4 to 6 digit numeric PIN used by employee to authenticate at the kiosk.</span>
+                            <div class="field-error" id="err-pin"></div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -294,6 +1463,37 @@
             </div>
         </div>
 
+        <!-- Reset Staff PIN Modal -->
+        <div class="modal-backdrop" id="reset-pin-modal" style="display: none;">
+            <div class="modal-dialog modal-dialog-sm">
+                <div class="modal-header">
+                    <h3 class="modal-title">Reset Staff PIN</h3>
+                    <button class="modal-close-btn" onclick="closeResetPinModal()">&times;</button>
+                </div>
+                <form id="reset-pin-form" onsubmit="handleResetPinSubmit(event)">
+                    <input type="hidden" id="reset-pin-employee-uuid">
+                    <div class="modal-body">
+                        <div id="reset-pin-error-banner" class="alert alert-danger" style="display: none;"></div>
+
+                        <p class="confirm-subtext mb-3" id="reset-pin-subtext">Set a new numeric PIN for this staff member.</p>
+
+                        <div class="form-group">
+                            <label for="reset-new-pin" class="form-label">New PIN (4–6 Digits) <span class="required">*</span></label>
+                            <input type="password" id="reset-new-pin" class="form-control mono-input" placeholder="••••" required minlength="4" maxlength="6" pattern="^[0-9]{4,6}$">
+                            <span class="form-hint">Resetting the PIN will also automatically clear any active failed-attempt lockouts.</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeResetPinModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-reset-pin">
+                            <span class="btn-text">Update PIN</span>
+                            <div class="spinner-small" style="display: none;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Deactivation / Activation Confirmation Dialog -->
         <div class="modal-backdrop" id="confirm-modal" style="display: none;">
             <div class="modal-dialog modal-dialog-sm">
@@ -319,8 +1519,397 @@
             </div>
         </div>
 
+        <!-- Photo Evidence Modal (Admin Portal) -->
+        <div class="modal-backdrop" id="photo-modal" style="display: none;">
+            <div class="modal-dialog modal-dialog-md">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="photo-modal-title">Attendance Photo Evidence</h3>
+                    <button class="modal-close-btn" onclick="closePhotoModal()">&times;</button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div id="photo-modal-loading" class="p-4">
+                        <div class="spinner-small" style="display: inline-block;"></div>
+                        <div class="mt-2 text-muted">Loading photo securely...</div>
+                    </div>
+                    <img id="photo-modal-img" class="photo-modal-img" style="display: none;" alt="Attendance Evidence Snapshot">
+                    <div class="mt-3 text-muted text-sm" id="photo-modal-details"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closePhotoModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Detailed Breakdown Modal (Day-by-Day Calendar View) -->
+        <div class="modal-backdrop" id="report-detail-modal" style="display: none;">
+            <div class="modal-dialog modal-dialog-lg" style="max-width: 950px; width: 95%;">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title" id="report-detail-title">Staff Monthly Attendance Breakdown</h3>
+                        <p class="text-muted text-sm mb-0" id="report-detail-subtitle">Day-by-day punch activity and calculated session durations.</p>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeReportDetailModal()">&times;</button>
+                </div>
+                <div class="modal-body p-3" style="max-height: 70vh; overflow-y: auto;">
+                    <div id="report-detail-loading" class="text-center p-4" style="display: none;">
+                        <div class="spinner-small" style="display: inline-block;"></div>
+                        <div class="mt-2 text-muted">Loading attendance days...</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Check-In (IST)</th>
+                                    <th>Check-Out (IST)</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Photo</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-detail-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="text-muted text-sm" id="report-detail-footer-summary">Total Duration: --</span>
+                    <button type="button" class="btn btn-secondary" onclick="closeReportDetailModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Correction & Missed Punch Modal -->
+        <div class="modal-backdrop" id="correction-modal" style="display: none;">
+            <div class="modal-dialog modal-dialog-md" style="max-width: 650px;">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title">Attendance Correction & Audit</h3>
+                        <p class="text-muted text-sm mb-0">Record verified punch adjustments with an immutable audit trail.</p>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeCorrectionModal()">&times;</button>
+                </div>
+                <form id="correction-form" onsubmit="submitCorrection(event)">
+                    <div class="modal-body p-4">
+                        <div id="correction-error-banner" class="alert alert-danger" style="display: none;"></div>
+
+                        <!-- Current Record Snapshot Box -->
+                        <div class="card p-3 mb-3" style="background: var(--bg-secondary, #f8fafc); border: 1px solid var(--border-color, #e2e8f0);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <strong id="corr-emp-name" style="font-size: 1.05rem;">--</strong>
+                                <span class="badge" id="corr-current-status-badge">--</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted, #64748b);">
+                                <div>Employee ID: <strong id="corr-emp-code" style="color: var(--text-main, #0f172a);">--</strong></div>
+                                <div>Work Date: <strong id="corr-work-date" style="color: var(--text-main, #0f172a);">--</strong></div>
+                                <div>Version: <strong id="corr-version-badge" style="color: var(--text-main, #0f172a);">--</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden fields -->
+                        <input type="hidden" id="corr-record-id">
+                        <input type="hidden" id="corr-record-version">
+
+                        <!-- Correction Action Selection -->
+                        <div class="form-group">
+                            <label for="corr-action-type" class="form-label">Correction Action <span class="required">*</span></label>
+                            <select id="corr-action-type" class="form-control" onchange="onCorrectionActionChanged()">
+                                <option value="RESOLVE_MISSED_CHECKOUT">Resolve Missed Checkout (Set Departure Time)</option>
+                                <option value="CORRECT_BOTH">Correct Both Check-In & Check-Out Times</option>
+                                <option value="CORRECT_CHECK_IN">Correct Check-In Time Only</option>
+                                <option value="CORRECT_CHECK_OUT">Correct Check-Out Time Only</option>
+                                <option value="VOID_RECORD">Void Record (Duplicate / Erroneous Session)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid-2-col" id="corr-times-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group" id="corr-in-group">
+                                <label for="corr-in-time" class="form-label">Check-In Time (IST) <span class="required">*</span></label>
+                                <input type="time" step="1" id="corr-in-time" class="form-control" oninput="updateCorrectionPreview()">
+                                <span class="form-hint" id="corr-in-hint">Current: --</span>
+                            </div>
+                            <div class="form-group" id="corr-out-group">
+                                <label for="corr-out-time" class="form-label">Check-Out Time (IST)</label>
+                                <input type="time" step="1" id="corr-out-time" class="form-control" oninput="updateCorrectionPreview()">
+                                <span class="form-hint" id="corr-out-hint">Current: --</span>
+                            </div>
+                        </div>
+
+                        <!-- Target Status (Hidden or auto-set) -->
+                        <div class="form-group" id="corr-status-group" style="display: none;">
+                            <label for="corr-target-status" class="form-label">Target Status</label>
+                            <select id="corr-target-status" class="form-control" onchange="updateCorrectionPreview()">
+                                <option value="CHECKED_OUT">CHECKED_OUT (Completed)</option>
+                                <option value="CHECKED_IN">CHECKED_IN (Open)</option>
+                                <option value="VOIDED">VOIDED (Invalid / Erroneous)</option>
+                            </select>
+                        </div>
+
+                        <!-- Mandatory Reason Field -->
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label for="corr-reason" class="form-label">Mandatory Correction Reason <span class="required">*</span></label>
+                                <span class="text-xs text-muted" id="corr-reason-counter">0 / 500 chars</span>
+                            </div>
+                            <textarea id="corr-reason" class="form-control" rows="3" maxlength="500" placeholder="State exact verified justification (e.g. Employee forgot to punch out; departure verified by manager)." required oninput="onCorrectionReasonInput()"></textarea>
+                            <span class="form-hint">This reason is permanently recorded in the immutable audit trail with your administrator identity.</span>
+                        </div>
+
+                        <!-- Live Proposed Change Preview (Diff Box) -->
+                        <div class="card p-3" id="corr-diff-box" style="background: #f1f5f9; border: 1px dashed #cbd5e1;">
+                            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; color: #475569;">Proposed Change Preview:</div>
+                            <div id="corr-diff-content" style="font-size: 0.85rem; line-height: 1.5;">
+                                <!-- Dynamic diff preview -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeCorrectionModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-correction">
+                            <span class="btn-text">Save & Audit Correction</span>
+                            <div class="spinner-small" style="display: none;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Manual Attendance Entry Modal -->
+        <div class="modal-backdrop" id="manual-entry-modal" style="display: none;">
+            <div class="modal-dialog modal-dialog-md" style="max-width: 600px;">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title">Add Manual Attendance Entry</h3>
+                        <p class="text-muted text-sm mb-0">Record authorized attendance for a staff member with administrator audit verification.</p>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeManualEntryModal()">&times;</button>
+                </div>
+                <form id="manual-entry-form" onsubmit="submitManualEntry(event)">
+                    <div class="modal-body p-4">
+                        <div id="manual-error-banner" class="alert alert-danger" style="display: none;"></div>
+
+                        <div class="form-group">
+                            <label for="manual-emp-select" class="form-label">Staff Member <span class="required">*</span></label>
+                            <select id="manual-emp-select" class="form-control" required>
+                                <option value="">-- Select Employee --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="manual-work-date" class="form-label">Work Date <span class="required">*</span></label>
+                            <input type="date" id="manual-work-date" class="form-control" required>
+                            <span class="form-hint">Staff cannot have multiple active records on the same work date.</span>
+                        </div>
+
+                        <div class="grid-2-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="manual-in-time" class="form-label">Check-In Time (IST) <span class="required">*</span></label>
+                                <input type="time" step="1" id="manual-in-time" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="manual-out-time" class="form-label">Check-Out Time (IST)</label>
+                                <input type="time" step="1" id="manual-out-time" class="form-control">
+                                <span class="form-hint">Leave blank if session was open.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label for="manual-reason" class="form-label">Mandatory Reason / Authorization <span class="required">*</span></label>
+                                <span class="text-xs text-muted" id="manual-reason-counter">0 / 500 chars</span>
+                            </div>
+                            <textarea id="manual-reason" class="form-control" rows="3" maxlength="500" placeholder="State official reason for manual entry (e.g. Field assignment attendance authorized by principal)." required oninput="onManualReasonInput()"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeManualEntryModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-manual">
+                            <span class="btn-text">Create Manual Attendance</span>
+                            <div class="spinner-small" style="display: none;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Immutable Audit History Modal -->
+        <div class="modal-backdrop" id="audit-history-modal" style="display: none;">
+            <div class="modal-dialog modal-dialog-lg" style="max-width: 850px; width: 95%;">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title">Attendance Change History & Audit Trail</h3>
+                        <p class="text-muted text-sm mb-0">Immutable, server-verified log of administrative corrections, missed punch resolutions, and manual entries.</p>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeAuditHistoryModal()">&times;</button>
+                </div>
+                <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="card p-3 mb-3" style="background: var(--bg-secondary, #f8fafc); border: 1px solid var(--border-color, #e2e8f0); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong id="audit-header-emp-name" style="font-size: 1rem;">--</strong>
+                            <span class="text-muted text-sm" id="audit-header-emp-code" style="margin-left: 0.5rem;">(--)</span>
+                        </div>
+                        <div>
+                            <span class="badge" id="audit-header-work-date">Date: --</span>
+                        </div>
+                    </div>
+
+                    <div id="audit-history-loading" class="text-center p-4" style="display: none;">
+                        <div class="spinner-small" style="display: inline-block;"></div>
+                        <div class="mt-2 text-muted">Loading audit events...</div>
+                    </div>
+
+                    <div id="audit-history-empty" class="empty-state p-4 text-center" style="display: none;">
+                        <h4>No Corrections Recorded</h4>
+                        <p class="text-muted">This record contains original punch timestamps without administrative changes.</p>
+                    </div>
+
+                    <div id="audit-timeline-container" class="audit-timeline">
+                        <!-- Populated dynamically with audit cards -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAuditHistoryModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safe Cleanup Execution Confirmation Modal -->
+        <div class="modal-backdrop" id="storage-cleanup-confirm-modal" style="display: none;">
+            <div class="modal-dialog" style="max-width: 520px;">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title text-danger">Confirm Photo Cleanup Execution</h3>
+                        <p class="text-muted text-sm mb-0">Execute two-phase safe photo deletion workflow.</p>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeCleanupConfirmModal()">&times;</button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-sm">
+                        You are about to permanently delete expired attendance photo files from disk based on the approved retention policy.
+                    </p>
+                    <div class="alert alert-warning text-xs mb-3">
+                        <strong>Data Preservation Notice:</strong>
+                        <ul style="margin-left: 1.25rem; margin-top: 0.25rem;">
+                            <li>Attendance punch records, check-in timestamps, and work hours are <strong>NEVER deleted</strong>.</li>
+                            <li>Correction audit trails and administrative change logs remain 100% intact.</li>
+                            <li>Photo database metadata is preserved with status <code>PURGED</code>.</li>
+                        </ul>
+                    </div>
+                    <p class="text-xs text-muted mb-0">
+                        Type <strong>CONFIRM</strong> below to authorize immediate execution:
+                    </p>
+                    <input type="text" id="cleanup-confirm-input" class="form-control mono-input mt-2" placeholder="CONFIRM" autocomplete="off" oninput="onCleanupConfirmInput()">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCleanupConfirmModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btn-submit-execute-cleanup" onclick="handleExecuteCleanup()" disabled>
+                        <span class="btn-text">Execute Cleanup</span>
+                        <div class="spinner-small" style="display: none;"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MODAL: PAIR NEW DEVICE ================= -->
+        <div id="pair-device-modal" class="modal-backdrop" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3 class="modal-title">Authorize New Kiosk Workstation</h3>
+                    <button class="btn-close-modal" onclick="closePairDeviceModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step 1: Input device name -->
+                    <div id="pair-step-input">
+                        <p class="text-sm text-muted mb-3">
+                            Initiate a secure pairing session to authorize a dedicated computer, tablet, or browser to operate the attendance kiosk.
+                        </p>
+                        <div id="pair-device-error" class="alert alert-danger" style="display: none;"></div>
+                        <div class="form-group">
+                            <label for="pair-device-name-input" class="form-label">Workstation / Terminal Name</label>
+                            <input type="text" id="pair-device-name-input" class="form-control" placeholder="e.g. Front Desk Terminal" maxlength="100" required>
+                            <span class="form-hint">A human-readable label to identify this workstation.</span>
+                        </div>
+                        <div class="modal-footer" style="padding: 1rem 0 0 0;">
+                            <button type="button" class="btn btn-secondary" onclick="closePairDeviceModal()">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="btn-submit-initiate-pairing" onclick="handleInitiatePairing()">
+                                <span class="btn-text">Generate Pairing Code</span>
+                                <div class="spinner-small" style="display: none;"></div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Display generated code -->
+                    <div id="pair-step-display" style="display: none;">
+                        <p class="text-sm text-muted mb-2">
+                            Enter this one-time authorization code into the kiosk terminal pairing screen:
+                        </p>
+
+                        <div class="pairing-code-display">
+                            <div class="text-xs uppercase text-muted" style="letter-spacing: 0.1rem; color: #a5b4fc;">Single-Use Authorization Code</div>
+                            <div class="pairing-code-val" id="display-pairing-code">---- ----</div>
+                            <div class="pairing-timer-badge">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span>Expires in: <strong id="display-pairing-countdown">10:00</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info text-xs mb-3">
+                            <strong>Security Policy:</strong> This code is single-use and valid for 10 minutes. 
+                            Never share this code outside the authorized kiosk workstation.
+                        </div>
+
+                        <div class="modal-footer" style="padding: 1rem 0 0 0;">
+                            <button type="button" class="btn btn-primary" onclick="closePairDeviceModal(); loadAdminDevices();">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MODAL: REVOKE DEVICE ================= -->
+        <div id="revoke-device-modal" class="modal-backdrop" style="display: none;">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3 class="modal-title">Revoke Workstation Authorization</h3>
+                    <button class="btn-close-modal" onclick="closeRevokeDeviceModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="revoke-device-error" class="alert alert-danger" style="display: none;"></div>
+                    <p class="text-sm">
+                        You are about to revoke authorization for <strong id="revoke-device-name-display">Device</strong>.
+                    </p>
+                    <div class="alert alert-danger text-xs mb-3">
+                        <strong>Security Impact:</strong>
+                        <ul style="margin-left: 1.25rem; margin-top: 0.25rem;">
+                            <li>The terminal's credential verifier will be <strong>immediately invalidated</strong> on the server.</li>
+                            <li>The workstation will be <strong>instantly blocked</strong> from all kiosk operations.</li>
+                            <li>All past attendance punch records and photo evidence remain intact.</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label for="revoke-reason-input" class="form-label">Revocation Reason (Optional)</label>
+                        <input type="text" id="revoke-reason-input" class="form-control" placeholder="e.g. Workstation decommissioned, device replaced">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeRevokeDeviceModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btn-submit-revoke-device" onclick="handleConfirmRevokeDevice()">
+                        <span class="btn-text">Revoke Authorization</span>
+                        <div class="spinner-small" style="display: none;"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast Notifications -->
         <div id="toast-container" class="toast-container"></div>
+
     </div>
 
     <!-- Application Script -->

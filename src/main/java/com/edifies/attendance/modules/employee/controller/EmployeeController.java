@@ -59,4 +59,12 @@ public class EmployeeController {
         EmployeeResponse updated = employeeService.updateStatus(id, request.status());
         return ResponseEntity.ok(updated);
     }
+
+    @PostMapping("/{id}/reset-pin")
+    public ResponseEntity<Void> resetPin(
+            @PathVariable UUID id,
+            @Valid @RequestBody com.edifies.attendance.modules.employee.dto.ResetPinRequest request) {
+        employeeService.resetPin(id, request.newPin());
+        return ResponseEntity.noContent().build();
+    }
 }

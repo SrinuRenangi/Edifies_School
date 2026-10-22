@@ -20,3 +20,6 @@ services:
 volumes:
   postgres_data:
     name: attendance_postgres_data
+  attendance_photos:
+    name: attendance_photos_data
+

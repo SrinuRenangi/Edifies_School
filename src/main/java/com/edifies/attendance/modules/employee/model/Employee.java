@@ -25,6 +25,9 @@ public class Employee {
     @Column(name = "status", nullable = false, length = 16)
     private EmployeeStatus status;
 
+    @Column(name = "pin_hash", nullable = false, length = 255)
+    private String pinHash;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -35,9 +38,14 @@ public class Employee {
     }
 
     public Employee(String employeeId, String fullName, String department) {
+        this(employeeId, fullName, department, null);
+    }
+
+    public Employee(String employeeId, String fullName, String department, String pinHash) {
         this.employeeId = employeeId;
         this.fullName = fullName;
         this.department = (department == null || department.isBlank()) ? "General" : department;
+        this.pinHash = pinHash;
         this.status = EmployeeStatus.ACTIVE;
     }
 
@@ -115,5 +123,13 @@ public class Employee {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getPinHash() {
+        return pinHash;
+    }
+
+    public void setPinHash(String pinHash) {
+        this.pinHash = pinHash;
     }
 }

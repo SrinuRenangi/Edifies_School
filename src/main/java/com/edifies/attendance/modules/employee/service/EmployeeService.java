@@ -1,5 +1,14 @@
 package com.edifies.attendance.modules.employee.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.edifies.attendance.common.exception.DuplicateResourceException;
 import com.edifies.attendance.common.exception.ResourceNotFoundException;
 import com.edifies.attendance.modules.employee.dto.CreateEmployeeRequest;
@@ -8,13 +17,7 @@ import com.edifies.attendance.modules.employee.dto.UpdateEmployeeRequest;
 import com.edifies.attendance.modules.employee.model.Employee;
 import com.edifies.attendance.modules.employee.model.EmployeeStatus;
 import com.edifies.attendance.modules.employee.repository.EmployeeRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
+import com.edifies.attendance.modules.security.service.LoginAttemptService;
 
 @Service
 @Transactional
@@ -23,9 +26,15 @@ public class EmployeeService {
     private static final Logger log = LoggerFactory.getLogger(EmployeeService.class);
 
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final LoginAttemptService loginAttemptService;
 
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository,
+                           PasswordEncoder passwordEncoder,
+                           LoginAttemptService loginAttemptService) {
         this.employeeRepository = employeeRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Transactional(readOnly = true)
@@ -58,10 +67,13 @@ public class EmployeeService {
                 ? request.department().trim()
                 : "General";
 
+        String pinHash = passwordEncoder.encode(request.pin().trim());
+
         Employee employee = new Employee(
                 normalizedEmployeeId,
                 request.fullName().trim(),
-                department
+                department,
+                pinHash
         );
 
         Employee saved = employeeRepository.save(employee);
@@ -82,6 +94,7 @@ public class EmployeeService {
         Employee updated = employeeRepository.save(employee);
         log.info("Updated employee details: id={}, employeeId='{}'", updated.getId(), updated.getEmployeeId());
         return EmployeeResponse.from(updated);
+        
     }
 
     public EmployeeResponse updateStatus(UUID id, EmployeeStatus status) {
@@ -93,5 +106,22 @@ public class EmployeeService {
         log.info("Updated employee status: id={}, employeeId='{}', status={}", 
                 updated.getId(), updated.getEmployeeId(), updated.getStatus());
         return EmployeeResponse.from(updated);
+    }
+
+    public void resetPin(UUID id, String newPin) {
+        if (newPin == null || !newPin.matches("^[0-9]{4,6}$")) {
+            throw new IllegalArgumentException("PIN must be between 4 and 6 numeric digits");
+        }
+
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
+
+        employee.setPinHash(passwordEncoder.encode(newPin.trim()));
+        employeeRepository.save(employee);
+
+        loginAttemptService.resetLockout(employee.getEmployeeId());
+
+        log.info("Administrator reset PIN for employeeId='{}' (UUID={})", 
+                employee.getEmployeeId(), employee.getId());
     }
 }

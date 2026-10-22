@@ -28,4 +28,7 @@ dist/
 # Photo Storage Local Uploads
 uploads/
 !uploads/.gitkeep
+photos/
+!photos/.gitkeep
 docker/volumes/
+

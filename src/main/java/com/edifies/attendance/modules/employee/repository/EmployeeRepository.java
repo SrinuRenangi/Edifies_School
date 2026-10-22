@@ -17,7 +17,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     Optional<Employee> findByEmployeeId(String employeeId);
 
+    Optional<Employee> findByEmployeeIdIgnoreCase(String employeeId);
+
     List<Employee> findAllByOrderByCreatedAtDesc();
+
+    long countByStatus(com.edifies.attendance.modules.employee.model.EmployeeStatus status);
 
     @Query("SELECT e FROM Employee e WHERE " +
            "LOWER(e.employeeId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -25,4 +29,14 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
            "LOWER(e.department) LIKE LOWER(CONCAT('%', :search, '%')) " +
            "ORDER BY e.createdAt DESC")
     List<Employee> searchEmployees(@Param("search") String search);
+
+    @Query("SELECT e FROM Employee e WHERE e.status = :status AND (" +
+           "LOWER(e.employeeId) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(e.fullName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(e.department) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+           "ORDER BY e.fullName ASC")
+    List<Employee> searchActiveEmployees(
+            @Param("status") com.edifies.attendance.modules.employee.model.EmployeeStatus status,
+            @Param("query") String query,
+            org.springframework.data.domain.Pageable pageable);
 }

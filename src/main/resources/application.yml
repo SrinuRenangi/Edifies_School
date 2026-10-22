@@ -2,7 +2,7 @@ spring:
   application:
     name: staff-attendance
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:attendance}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5435}/${DB_NAME:attendance}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
@@ -37,3 +37,17 @@ logging:
     root: INFO
     com.edifies.attendance: DEBUG
     org.flywaydb: INFO
+
+attendance:
+  timezone: ${ATTENDANCE_TIMEZONE:Asia/Kolkata}
+  cutoff-hour: ${ATTENDANCE_CUTOFF_HOUR:4}
+  photo:
+    storage-root: ${PHOTO_STORAGE_ROOT:photos}
+    max-file-size: 2097152
+    retention-days: ${PHOTO_RETENTION_DAYS:90}
+
+app:
+  kiosk:
+    device-enforcement-enabled: ${DEVICE_ENFORCEMENT_ENABLED:true}
+
+

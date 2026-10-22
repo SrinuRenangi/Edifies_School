@@ -15,6 +15,10 @@ public record CreateEmployeeRequest(
         String fullName,
 
         @Size(max = 64, message = "Department name must not exceed 64 characters")
-        String department
+        String department,
+
+        @NotBlank(message = "PIN is required")
+        @Pattern(regexp = "^[0-9]{4,6}$", message = "PIN must be between 4 and 6 numeric digits")
+        String pin
 ) {
 }
