@@ -31,7 +31,37 @@ export class CameraService {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.activeStream = stream;
       videoElement.srcObject = stream;
-      await videoElement.play();
+
+      await new Promise<void>((resolve) => {
+        if (videoElement.readyState >= 2 && videoElement.videoWidth > 0) {
+          resolve();
+        } else {
+          let resolved = false;
+          const onReady = () => {
+            if (!resolved) {
+              resolved = true;
+              videoElement.removeEventListener('loadedmetadata', onReady);
+              videoElement.removeEventListener('playing', onReady);
+              resolve();
+            }
+          };
+          videoElement.addEventListener('loadedmetadata', onReady, { once: true });
+          videoElement.addEventListener('playing', onReady, { once: true });
+          setTimeout(() => {
+            if (!resolved) {
+              resolved = true;
+              resolve();
+            }
+          }, 2500);
+        }
+      });
+
+      try {
+        await videoElement.play();
+      } catch (playErr) {
+        console.warn('Video play warning:', playErr);
+      }
+
       return stream;
     } catch (err: any) {
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {

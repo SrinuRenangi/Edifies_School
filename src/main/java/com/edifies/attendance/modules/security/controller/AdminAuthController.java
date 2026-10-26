@@ -31,7 +31,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth/admin")
-@CrossOrigin(origins = "*")
 public class AdminAuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminAuthController.class);

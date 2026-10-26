@@ -3,6 +3,7 @@ package com.edifies.attendance.modules.photo.service;
 import com.edifies.attendance.common.exception.ValidationException;
 import com.edifies.attendance.modules.photo.dto.*;
 import com.edifies.attendance.modules.photo.model.*;
+import com.edifies.attendance.modules.photo.model.StorageStatus;
 import com.edifies.attendance.modules.photo.repository.AttendancePhotoRepository;
 import com.edifies.attendance.modules.photo.repository.PhotoCleanupHistoryRepository;
 import com.edifies.attendance.modules.photo.repository.PhotoRetentionPolicyRepository;

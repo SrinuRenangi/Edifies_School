@@ -30,5 +30,8 @@ uploads/
 !uploads/.gitkeep
 photos/
 !photos/.gitkeep
+photos_recovery/
+backups/
 docker/volumes/
+
 

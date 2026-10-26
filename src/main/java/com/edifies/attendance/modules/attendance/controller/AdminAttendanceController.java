@@ -31,7 +31,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/attendance")
-@CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminAttendanceController {
 

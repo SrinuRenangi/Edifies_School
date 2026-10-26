@@ -1,17 +1,47 @@
-# Docker build context exclusions
+# Build artifacts and compiled outputs
 target/
+dist/
+*.class
+*.jar
+*.war
+
+# Database data and backups
 pgdata/
+*.sql
+*.dump
+*.bak
+
+# Logs and runtime traces
 *.log
+logs/
+
+# Version control and editor metadata
 .git/
 .gitignore
 .dockerignore
-tools/
-docs/
 .agents/
 .idea/
 .vscode/
+*.swp
+
+# Secrets, environments, and local credentials
+.env
+*.env
+*.pem
+*.key
+*.cer
+
+# Frontend and node dependencies
 node_modules/
-dist/
+frontend/node_modules/
+
+# Local storage and test uploads
 photos/
 uploads/
+storage/
+temp/
+scratch/
 
+# Project documentation and tools
+docs/
+tools/

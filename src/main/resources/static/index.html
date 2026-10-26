@@ -8,14 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=24">
 </head>
 <body>
+    <!-- Accessibility Skip Link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <div id="app">
         <!-- Top Navigation Bar -->
         <header class="top-nav">
             <div class="nav-brand">
-                <div class="brand-logo">
+                <div class="brand-logo" aria-hidden="true">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
@@ -29,7 +32,16 @@
                 </div>
             </div>
 
-            <nav class="nav-links">
+            <!-- Mobile Navigation Toggle -->
+            <button class="nav-mobile-toggle" id="nav-mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false" onclick="toggleMobileNav()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+
+            <nav class="nav-links" id="nav-menu" aria-label="Primary application navigation">
                 <button class="nav-link active" id="nav-dashboard">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"></rect>
@@ -38,7 +50,6 @@
                         <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
                     <span>Dashboard</span>
-                    <span class="badge-pill badge-pill-active">Phase 12</span>
                 </button>
                 <button class="nav-link" id="nav-employees">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -49,66 +60,73 @@
                     </svg>
                     <span>Staff Directory</span>
                 </button>
-                <button class="nav-link" id="nav-kiosk">
+                <button class="nav-link" id="nav-kiosk" title="Attendance Kiosk">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                         <line x1="8" y1="21" x2="16" y2="21"></line>
                         <line x1="12" y1="17" x2="12" y2="21"></line>
                     </svg>
-                    <span>Attendance Kiosk</span>
-                    <span class="badge-pill badge-pill-active">Phase 6 Active</span>
+                    <span>Kiosk</span>
                 </button>
-                <button class="nav-link" id="nav-attendance">
+                <button class="nav-link" id="nav-attendance" title="Attendance Log">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                     <span>Attendance Log</span>
-                    <span class="badge-pill badge-pill-active">Phase 6</span>
                 </button>
-                <button class="nav-link" id="nav-reports">
+                <button class="nav-link" id="nav-reports" title="Reports & Export">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="20" x2="18" y2="10"></line>
                         <line x1="12" y1="20" x2="12" y2="4"></line>
                         <line x1="6" y1="20" x2="6" y2="14"></line>
                     </svg>
-                    <span>Reports & Export</span>
-                    <span class="badge-pill badge-pill-active">Phase 8</span>
+                    <span>Reports</span>
                 </button>
-                <button class="nav-link" id="nav-storage">
+                <button class="nav-link" id="nav-storage" title="Storage & Retention">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
                     </svg>
-                    <span>Storage & Retention</span>
-                    <span class="badge-pill badge-pill-active">Phase 10</span>
+                    <span>Storage</span>
                 </button>
-                <button class="nav-link" id="nav-devices">
+                <button class="nav-link" id="nav-devices" title="Authorized Devices">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                         <line x1="8" y1="21" x2="16" y2="21"></line>
                         <line x1="12" y1="17" x2="12" y2="21"></line>
                     </svg>
-                    <span>Authorized Devices</span>
-                    <span class="badge-pill badge-pill-active">Phase 11</span>
+                    <span>Devices</span>
+                </button>
+                <button class="nav-link" id="nav-backup" title="Disaster Recovery">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Disaster Recovery</span>
                 </button>
             </nav>
 
             <div class="nav-status-group">
                 <div id="admin-user-info" class="admin-user-pill" style="display: none;">
                     <span class="admin-user-name" id="admin-user-name">Administrator</span>
+                    <span class="badge-pill" id="admin-user-role-badge" style="font-size: 0.72rem; padding: 2px 8px; margin-left: 6px; font-weight: 600; text-transform: uppercase;">ADMIN</span>
                     <button class="btn btn-secondary btn-sm" id="btn-admin-logout" onclick="handleAdminLogout()">Logout</button>
                 </div>
-                <div class="nav-status">
-                    <span class="pulse-indicator"></span>
+                <div class="nav-status" aria-label="PostgreSQL Database Status: Active">
+                    <span class="pulse-indicator" aria-hidden="true"></span>
                     <span class="status-label">PostgreSQL 17 Active</span>
                 </div>
             </div>
         </header>
 
+        <!-- Mobile Navigation Backdrop -->
+        <div id="nav-mobile-backdrop" class="nav-mobile-backdrop" style="display: none;" onclick="closeMobileNav()" aria-hidden="true"></div>
+
         <!-- Main Content Area -->
-        <main class="main-container">
+        <main class="main-container" id="main-content">
 
             <!-- ================= VIEW 1: ADMIN LOGIN VIEW ================= -->
             <section id="view-admin-login" class="auth-view" style="display: none;">
@@ -120,8 +138,8 @@
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                             </svg>
                         </div>
-                        <h2 class="auth-title">Administrator Authentication</h2>
-                        <p class="auth-subtitle">Sign in to manage employees, reset staff PINs, and configure attendance rules.</p>
+                        <h2 class="auth-title">Administrative & Staff Login</h2>
+                        <p class="auth-subtitle">Sign in to access staff directory, kiosk operations, and administration.</p>
                     </div>
 
                     <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
@@ -129,7 +147,7 @@
 
                         <div class="form-group">
                             <label for="admin-username" class="form-label">Username</label>
-                            <input type="text" id="admin-username" class="form-control" placeholder="admin" required autocomplete="username">
+                            <input type="text" id="admin-username" class="form-control" placeholder="admin or manager" required autocomplete="username">
                         </div>
 
                         <div class="form-group">
@@ -139,13 +157,13 @@
 
                         <div class="auth-actions">
                             <button type="submit" class="btn btn-primary btn-block" id="btn-submit-admin-login">
-                                <span class="btn-text">Sign In to Dashboard</span>
+                                <span class="btn-text">Sign In</span>
                                 <div class="spinner-small" style="display: none;"></div>
                             </button>
                         </div>
 
                         <div class="auth-footer-hint">
-                            <span>Default Initial Credentials: <code>admin</code> / <code>Admin@12345</code></span>
+                            <span>Authorised Roles: <code>ADMIN</code> and <code>MANAGER</code></span>
                         </div>
                     </form>
                 </div>
@@ -399,6 +417,35 @@
 
             <!-- ================= VIEW 2: STAFF DIRECTORY VIEW ================= -->
             <section id="view-admin-directory" style="display: none;">
+                <!-- Manager Workspace Banner (Visible only for ROLE_MANAGER) -->
+                <div id="manager-workspace-banner" class="card mb-4 p-3" style="display: none; background: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--color-primary); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="background: rgba(59, 130, 246, 0.15); color: var(--color-primary); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="8.5" cy="7" r="4"></circle>
+                                    <polyline points="17 11 19 13 23 9"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: var(--color-text-primary);">Manager Workspace</h3>
+                                <p style="font-size: 0.85rem; margin: 0; color: var(--color-text-secondary);">Restricted access mode: Authorized to manage Staff Directory and operate Attendance Kiosk.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary btn-sm" onclick="switchView('KIOSK')">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                                </svg>
+                                <span>Open Attendance Kiosk</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Page Header with Summary Stats -->
                 <section class="page-header">
                     <div>
@@ -516,15 +563,15 @@
 
                     <!-- Table View -->
                     <div class="table-responsive" id="table-wrapper">
-                        <table class="data-table">
+                        <table class="data-table" id="employee-directory-table">
                             <thead>
                                 <tr>
-                                    <th>Employee ID</th>
-                                    <th>Full Name</th>
-                                    <th>Department</th>
-                                    <th>Status</th>
-                                    <th>Registration Date</th>
-                                    <th class="text-right">Actions</th>
+                                    <th scope="col" class="col-emp-id">Employee ID</th>
+                                    <th scope="col" class="col-emp-name">Full Name</th>
+                                    <th scope="col" class="col-emp-dept">Department</th>
+                                    <th scope="col" class="col-emp-status text-center">Status</th>
+                                    <th scope="col" class="col-emp-date">Registered</th>
+                                    <th scope="col" class="col-emp-actions text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="employee-table-body">
@@ -532,26 +579,29 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Mobile Directory Card View (rendered on phones <= 680px) -->
+                    <div class="employee-cards-container" id="employee-cards-wrapper" style="display: none;" role="feed" aria-label="Staff directory employee cards"></div>
                 </section>
             </section>
 
             <!-- ================= VIEW 4: ADMIN ATTENDANCE LOG VIEW ================= -->
             <section id="view-admin-attendance" style="display: none;">
-                <section class="page-header">
+                <section class="page-header att-page-header">
                     <div>
                         <h1 class="page-title">Attendance Log</h1>
                         <p class="page-description">Authoritative daily attendance sessions and server timestamps recorded directly by the attendance engine.</p>
                     </div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <div class="att-header-actions">
                         <button class="btn btn-primary" onclick="openManualAttendanceModal()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                             <span>+ Manual Entry</span>
                         </button>
                         <button class="btn btn-secondary" id="btn-export-attendance-csv" onclick="exportAttendanceRecordsCsv()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="7 10 12 15 17 10"></polyline>
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -559,7 +609,7 @@
                             <span>Export CSV</span>
                         </button>
                         <button class="btn btn-secondary" onclick="loadAttendanceRecords(0)">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <polyline points="23 4 23 10 17 10"></polyline>
                                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                             </svg>
@@ -568,24 +618,24 @@
                     </div>
                 </section>
 
-                <!-- Filter Controls -->
-                <div class="card mb-4 p-3">
-                    <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; align-items: flex-end;">
-                        <div class="form-group mb-0">
-                            <label class="form-label">Search Staff</label>
-                            <input type="text" id="att-search-input" class="form-control" placeholder="Name, ID, dept...">
+                <!-- Unified Filter Toolbar -->
+                <div class="card mb-4 att-filter-card">
+                    <div class="att-filter-grid">
+                        <div class="form-group mb-0 att-filter-search">
+                            <label class="form-label" for="att-search-input">Search Staff</label>
+                            <input type="text" id="att-search-input" class="form-control" placeholder="Search by name, ID, dept..." aria-label="Search Staff">
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label">From Date</label>
-                            <input type="date" id="att-from-date" class="form-control">
+                        <div class="form-group mb-0 att-filter-from">
+                            <label class="form-label" for="att-from-date">From Date</label>
+                            <input type="date" id="att-from-date" class="form-control" aria-label="From Date">
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label">To Date</label>
-                            <input type="date" id="att-to-date" class="form-control">
+                        <div class="form-group mb-0 att-filter-to">
+                            <label class="form-label" for="att-to-date">To Date</label>
+                            <input type="date" id="att-to-date" class="form-control" aria-label="To Date">
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label">Status</label>
-                            <select id="att-status-filter" class="form-control">
+                        <div class="form-group mb-0 att-filter-status">
+                            <label class="form-label" for="att-status-filter">Status</label>
+                            <select id="att-status-filter" class="form-control" aria-label="Status Filter">
                                 <option value="">All Statuses</option>
                                 <option value="CHECKED_IN">Checked In (Open)</option>
                                 <option value="CHECKED_OUT">Checked Out (Closed)</option>
@@ -593,30 +643,41 @@
                                 <option value="VOIDED">Voided (Erroneous)</option>
                             </select>
                         </div>
-                        <div class="filter-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <button type="button" class="btn btn-primary" onclick="applyAttendanceFilters()">Filter</button>
-                            <button type="button" class="btn btn-secondary" onclick="resetAttendanceFilters()">Reset</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setAttendanceDateQuick('today')" title="Filter Today">Today</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setAttendanceDateQuick('yesterday')" title="Filter Yesterday">Yesterday</button>
+                        <div class="att-filter-actions-group">
+                            <button type="button" class="btn btn-primary" onclick="applyAttendanceFilters()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                </svg>
+                                <span>Filter</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetAttendanceFilters()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                                <span>Reset</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-quick-date" onclick="setAttendanceDateQuick('today')" title="Filter Today">Today</button>
+                            <button type="button" class="btn btn-secondary btn-quick-date" onclick="setAttendanceDateQuick('yesterday')" title="Filter Yesterday">Yesterday</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Attendance Table -->
+                <!-- Desktop & Tablet Attendance Table View -->
                 <div class="table-responsive" id="att-table-wrapper">
-                    <table class="data-table">
+                    <table class="data-table" id="attendance-directory-table">
                         <thead>
                             <tr>
-                                <th>Work Date</th>
-                                <th>Employee ID</th>
-                                <th>Full Name</th>
-                                <th>Department</th>
-                                <th>Check-In (IST)</th>
-                                <th>Check-Out (IST)</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                                <th>Photo Evidence</th>
-                                <th>Actions & Audit</th>
+                                <th scope="col" class="col-att-date">Work Date</th>
+                                <th scope="col" class="col-att-empid">Employee ID</th>
+                                <th scope="col" class="col-att-name">Full Name</th>
+                                <th scope="col" class="col-att-dept">Department</th>
+                                <th scope="col" class="col-att-in">Check-In (IST)</th>
+                                <th scope="col" class="col-att-out">Check-Out (IST)</th>
+                                <th scope="col" class="col-att-duration">Duration</th>
+                                <th scope="col" class="col-att-status">Status</th>
+                                <th scope="col" class="col-att-photo">Photo Evidence</th>
+                                <th scope="col" class="col-att-actions text-right">Actions & Audit</th>
                             </tr>
                         </thead>
                         <tbody id="attendance-table-body">
@@ -625,14 +686,17 @@
                     </table>
                 </div>
 
+                <!-- Mobile Attendance Cards View (rendered on phones <= 680px) -->
+                <div class="attendance-cards-container" id="attendance-cards-wrapper" style="display: none;" role="feed" aria-label="Attendance record cards"></div>
+
                 <!-- Empty State -->
                 <div id="att-empty-state" class="empty-state" style="display: none;">
                     <h3>No Attendance Records Found</h3>
                     <p>No punches match the selected filters or date range.</p>
                 </div>
 
-                <!-- Pagination -->
-                <div class="pagination-bar mt-3" id="att-pagination" style="display: none; display: flex; justify-content: space-between; align-items: center;">
+                <!-- Pagination Bar -->
+                <div class="pagination-bar mt-3" id="att-pagination" style="display: none;">
                     <button class="btn btn-secondary btn-sm" id="btn-att-prev" onclick="changeAttendancePage(-1)">&larr; Previous</button>
                     <span id="att-page-info" class="pagination-info text-muted">Page 1 of 1</span>
                     <button class="btn btn-secondary btn-sm" id="btn-att-next" onclick="changeAttendancePage(1)">Next &rarr;</button>
@@ -641,22 +705,22 @@
 
             <!-- ================= VIEW 5: ADMIN REPORTS & MONTHLY VIEW ================= -->
             <section id="view-admin-reports" style="display: none;">
-                <section class="page-header">
+                <section class="page-header report-page-header">
                     <div>
                         <h1 class="page-title">Monthly Reports & Staff Summaries</h1>
                         <p class="page-description">Database-backed monthly attendance summaries, session statistics, incomplete punch audits, and CSV data exports.</p>
                     </div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <div class="report-header-actions">
                         <button class="btn btn-secondary" id="btn-export-monthly-csv" onclick="exportMonthlyReportCsv()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="7 10 12 15 17 10"></polyline>
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
                             <span>Export Summary CSV</span>
                         </button>
-                        <button class="btn btn-secondary" onclick="loadMonthlyReport()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <button class="btn btn-secondary" id="btn-refresh-report" onclick="loadMonthlyReport()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <polyline points="23 4 23 10 17 10"></polyline>
                                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                             </svg>
@@ -666,11 +730,11 @@
                 </section>
 
                 <!-- Report Filter Bar -->
-                <div class="card mb-4 p-3">
-                    <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
-                        <div class="form-group mb-0">
-                            <label class="form-label">Month</label>
-                            <select id="report-month-select" class="form-control">
+                <div class="card mb-4 report-filter-card">
+                    <div class="report-filter-grid">
+                        <div class="form-group mb-0 report-filter-month">
+                            <label class="form-label" for="report-month-select">Month</label>
+                            <select id="report-month-select" class="form-control" aria-label="Select Report Month">
                                 <option value="1">January</option>
                                 <option value="2">February</option>
                                 <option value="3">March</option>
@@ -680,14 +744,14 @@
                                 <option value="7">July</option>
                                 <option value="8">August</option>
                                 <option value="9">September</option>
-                                <option value="10">October</option>
+                                <option value="10" selected>October</option>
                                 <option value="11">November</option>
                                 <option value="12">December</option>
                             </select>
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label">Year</label>
-                            <select id="report-year-select" class="form-control">
+                        <div class="form-group mb-0 report-filter-year">
+                            <label class="form-label" for="report-year-select">Year</label>
+                            <select id="report-year-select" class="form-control" aria-label="Select Report Year">
                                 <option value="2024">2024</option>
                                 <option value="2025">2025</option>
                                 <option value="2026" selected>2026</option>
@@ -695,60 +759,117 @@
                                 <option value="2028">2028</option>
                             </select>
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label">Filter Staff</label>
-                            <input type="text" id="report-staff-search" class="form-control" placeholder="Search staff name or code...">
+                        <div class="form-group mb-0 report-filter-search">
+                            <label class="form-label" for="report-staff-search">Filter Staff</label>
+                            <input type="text" id="report-staff-search" class="form-control" placeholder="Search staff name, code, dept..." aria-label="Filter staff">
                         </div>
-                        <div class="filter-actions" style="display: flex; gap: 0.5rem;">
-                            <button type="button" class="btn btn-primary" onclick="loadMonthlyReport()">Generate</button>
-                            <button type="button" class="btn btn-secondary" onclick="resetReportFilters()">Reset</button>
+                        <div class="report-filter-actions-group">
+                            <button type="button" class="btn btn-primary" onclick="loadMonthlyReport()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                                <span>Generate</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetReportFilters()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                </svg>
+                                <span>Reset</span>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- KPI Metric Summary Cards -->
-                <div class="stats-grid mb-4" id="report-kpi-grid">
-                    <div class="stat-card">
-                        <span class="stat-label">Total Staff</span>
-                        <span class="stat-value" id="kpi-total-staff">--</span>
-                        <span class="stat-subtitle">Included in Monthly Scope</span>
+                <div class="report-kpi-grid mb-4" id="report-kpi-grid" role="region" aria-label="Monthly Attendance Summary Metrics">
+                    <div class="report-kpi-card" id="card-kpi-staff">
+                        <div class="report-kpi-header">
+                            <span class="report-kpi-label">Total Staff</span>
+                            <div class="report-kpi-icon icon-users" aria-hidden="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="report-kpi-value" id="kpi-total-staff">--</div>
+                        <div class="report-kpi-subtext">Included in Monthly Scope</div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Recorded Sessions</span>
-                        <span class="stat-value text-primary" id="kpi-total-sessions">--</span>
-                        <span class="stat-subtitle">Total Punches in Month</span>
+                    <div class="report-kpi-card" id="card-kpi-sessions">
+                        <div class="report-kpi-header">
+                            <span class="report-kpi-label">Recorded Sessions</span>
+                            <div class="report-kpi-icon icon-sessions" aria-hidden="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="report-kpi-value text-primary" id="kpi-total-sessions">--</div>
+                        <div class="report-kpi-subtext">Total Punches in Month</div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Completed Shifts</span>
-                        <span class="stat-value text-success" id="kpi-completed-sessions">--</span>
-                        <span class="stat-subtitle">Both In & Out Logged</span>
+                    <div class="report-kpi-card" id="card-kpi-completed">
+                        <div class="report-kpi-header">
+                            <span class="report-kpi-label">Completed Shifts</span>
+                            <div class="report-kpi-icon icon-completed" aria-hidden="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="report-kpi-value text-success" id="kpi-completed-sessions">--</div>
+                        <div class="report-kpi-subtext">Both In &amp; Out Logged</div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Incomplete / Open</span>
-                        <span class="stat-value text-warning" id="kpi-incomplete-sessions">--</span>
-                        <span class="stat-subtitle">Missing Checkout or Cut-off</span>
+                    <div class="report-kpi-card" id="card-kpi-incomplete">
+                        <div class="report-kpi-header">
+                            <span class="report-kpi-label">Incomplete / Open</span>
+                            <div class="report-kpi-icon icon-warning" aria-hidden="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="report-kpi-value text-warning" id="kpi-incomplete-sessions">--</div>
+                        <div class="report-kpi-subtext">Missing Checkout or Cut-off</div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Total Work Duration</span>
-                        <span class="stat-value" id="kpi-total-duration">--</span>
-                        <span class="stat-subtitle">Cumulative Stored Hours</span>
+                    <div class="report-kpi-card" id="card-kpi-duration">
+                        <div class="report-kpi-header">
+                            <span class="report-kpi-label">Total Work Duration</span>
+                            <div class="report-kpi-icon icon-duration" aria-hidden="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="report-kpi-value text-indigo" id="kpi-total-duration">--</div>
+                        <div class="report-kpi-subtext">Cumulative Stored Hours</div>
                     </div>
                 </div>
 
-                <!-- Monthly Employee Summary Table -->
-                <div class="table-responsive card" id="report-table-wrapper">
-                    <table class="data-table">
+                <!-- Desktop & Tablet Monthly Summary Table -->
+                <div class="table-responsive card report-table-card" id="report-table-wrapper">
+                    <table class="data-table" id="report-summary-table">
                         <thead>
                             <tr>
-                                <th>Staff Code</th>
-                                <th>Full Name</th>
-                                <th>Department</th>
-                                <th>Status</th>
-                                <th>Total Shifts</th>
-                                <th>Completed</th>
-                                <th>Incomplete</th>
-                                <th>Total Work Duration</th>
-                                <th class="text-right">Actions</th>
+                                <th scope="col" class="col-rep-code">Staff Code</th>
+                                <th scope="col" class="col-rep-name">Full Name</th>
+                                <th scope="col" class="col-rep-dept">Department</th>
+                                <th scope="col" class="col-rep-status text-center">Status</th>
+                                <th scope="col" class="col-rep-shifts text-center">Total Shifts</th>
+                                <th scope="col" class="col-rep-completed text-center">Completed</th>
+                                <th scope="col" class="col-rep-incomplete text-center">Incomplete</th>
+                                <th scope="col" class="col-rep-duration text-center">Total Work Duration</th>
+                                <th scope="col" class="col-rep-actions text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="report-table-body">
@@ -756,6 +877,9 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile Monthly Report Cards View (rendered on phones <= 680px) -->
+                <div class="report-cards-container" id="report-cards-wrapper" style="display: none;" role="feed" aria-label="Monthly employee report cards"></div>
 
                 <!-- Report Empty State -->
                 <div id="report-empty-state" class="empty-state" style="display: none;">
@@ -1059,6 +1183,130 @@
                 </div>
             </section>
 
+            <!-- ================= VIEW: DISASTER RECOVERY & BACKUP (PHASE 16) ================= -->
+            <section id="view-admin-backup" style="display: none;">
+                <div class="dash-header-bar">
+                    <div class="dash-title-group">
+                        <div class="dash-title-badge">
+                            <span class="live-dot-pulse"></span>
+                            <span>Disaster Recovery & Data Protection</span>
+                        </div>
+                        <h1 class="page-title">Backup, Restore & Disaster Recovery</h1>
+                        <p class="page-description">Automated PostgreSQL snapshots, photo assets archiving, GFS retention rotation, and isolated recovery testing.</p>
+                    </div>
+
+                    <div class="dash-controls-group">
+                        <div class="dash-action-buttons">
+                            <button class="btn btn-primary btn-sm" id="btn-trigger-backup" onclick="triggerManualBackup()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <span>Create Backup Now</span>
+                            </button>
+                            <button class="btn btn-secondary btn-sm" id="btn-run-restore-test" onclick="runIsolatedRestoreTest()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                </svg>
+                                <span>Test Recovery in Isolated DB</span>
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="loadBackupDashboard()">
+                                <span>Refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DR Objectives and Health Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Disaster Recovery Health</span>
+                            <span class="metric-badge metric-badge-success" id="dr-health-badge">HEALTHY</span>
+                        </div>
+                        <div class="metric-value-box">
+                            <span class="metric-value" id="dr-status-text">Verified</span>
+                        </div>
+                        <span class="metric-footer" id="dr-last-backup-desc">Last backup verified</span>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Recovery Point Objective (RPO)</span>
+                            <span class="metric-badge">Target: 24h</span>
+                        </div>
+                        <div class="metric-value-box">
+                            <span class="metric-value text-accent" id="dr-rpo-value">&lt; 1 Hour</span>
+                        </div>
+                        <span class="metric-footer" id="dr-rpo-desc">Within 24-hour daily objective</span>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Recovery Time Objective (RTO)</span>
+                            <span class="metric-badge">Target: &lt; 5m</span>
+                        </div>
+                        <div class="metric-value-box">
+                            <span class="metric-value text-accent" id="dr-rto-value">1.34s</span>
+                        </div>
+                        <span class="metric-footer" id="dr-rto-desc">Measured via isolated restore test</span>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Available Backup Volume</span>
+                            <span class="metric-badge">Storage</span>
+                        </div>
+                        <div class="metric-value-box">
+                            <span class="metric-value text-accent" id="dr-storage-avail">-- GB</span>
+                        </div>
+                        <span class="metric-footer" id="dr-storage-count">-- Total Backups</span>
+                    </div>
+                </div>
+
+                <!-- Isolated Recovery Test Result Alert Box -->
+                <div id="restore-test-result-box" class="card p-4 mb-4" style="display: none;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge-pill badge-pill-active" id="restore-test-badge">RECOVERY VERIFICATION PASSED</span>
+                            <h3 style="margin: 0; font-size: 1.1rem;">Isolated Environment Verification Report</h3>
+                        </div>
+                        <button class="btn btn-xs btn-secondary" onclick="document.getElementById('restore-test-result-box').style.display='none'">&times; Dismiss</button>
+                    </div>
+                    <div id="restore-test-details" class="text-sm"></div>
+                </div>
+
+                <!-- Available Backups Table -->
+                <div class="card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="card-title" style="margin: 0;">Disaster Recovery Recovery Points (GFS Rotation)</h3>
+                        <span class="text-muted text-xs">Retention: 7 Daily, 4 Weekly, 3 Monthly Checkpoints</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Backup ID</th>
+                                    <th>Timestamp (UTC)</th>
+                                    <th>Type</th>
+                                    <th>Bundle Size</th>
+                                    <th>Photos</th>
+                                    <th>SHA-256 Checksum</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="backup-table-body">
+                                <tr><td colspan="8" class="text-center text-muted p-4">Loading disaster recovery archives...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <!-- ================= VIEW 3: KIOSK MODE VIEW ================= -->
             <section id="view-kiosk" class="kiosk-view" style="display: none;">
                 <!-- Kiosk Unpaired / Bootstrap State Screen -->
@@ -1268,6 +1516,10 @@
 
                                 <!-- Live Stream Viewport with Positioning Guide Overlay -->
                                 <div id="camera-stream-wrapper" class="camera-viewport-wrapper">
+                                    <div id="camera-loading-overlay" class="camera-loading-overlay" style="display: none;">
+                                        <div class="spinner-small" style="width: 24px; height: 24px;"></div>
+                                        <span>Initializing camera feed...</span>
+                                    </div>
                                     <video id="kiosk-camera-video" class="camera-video-feed" autoplay playsinline muted></video>
                                     <div class="camera-guide-overlay">
                                         <div class="camera-face-oval"></div>
@@ -1375,15 +1627,15 @@
         <!-- ================= MODALS ================= -->
 
         <!-- Register Employee Modal -->
-        <div class="modal-backdrop" id="register-modal" style="display: none;">
+        <div class="modal-backdrop" id="register-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="register-modal-title">
             <div class="modal-dialog">
                 <div class="modal-header">
-                    <h3 class="modal-title">Register New Employee</h3>
-                    <button class="modal-close-btn" onclick="closeRegisterModal()">&times;</button>
+                    <h3 class="modal-title" id="register-modal-title">Register New Employee</h3>
+                    <button class="modal-close-btn" onclick="closeRegisterModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <form id="register-form" onsubmit="handleRegisterSubmit(event)">
                     <div class="modal-body">
-                        <div id="register-error-banner" class="alert alert-danger" style="display: none;"></div>
+                        <div id="register-error-banner" class="alert alert-danger" style="display: none;" role="alert" aria-live="assertive"></div>
 
                         <div class="form-group">
                             <label for="reg-employee-id" class="form-label">Employee ID / Code <span class="required">*</span></label>
@@ -1423,19 +1675,19 @@
         </div>
 
         <!-- Edit Employee Modal -->
-        <div class="modal-backdrop" id="edit-modal" style="display: none;">
+        <div class="modal-backdrop" id="edit-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
             <div class="modal-dialog">
                 <div class="modal-header">
-                    <h3 class="modal-title">Edit Employee Details</h3>
-                    <button class="modal-close-btn" onclick="closeEditModal()">&times;</button>
+                    <h3 class="modal-title" id="edit-modal-title">Edit Employee Details</h3>
+                    <button class="modal-close-btn" onclick="closeEditModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <form id="edit-form" onsubmit="handleEditSubmit(event)">
                     <input type="hidden" id="edit-employee-uuid">
                     <div class="modal-body">
-                        <div id="edit-error-banner" class="alert alert-danger" style="display: none;"></div>
+                        <div id="edit-error-banner" class="alert alert-danger" style="display: none;" role="alert" aria-live="assertive"></div>
 
                         <div class="form-group">
-                            <label class="form-label">Employee ID</label>
+                            <label for="edit-employee-id" class="form-label">Employee ID</label>
                             <input type="text" id="edit-employee-id" class="form-control mono-input" disabled>
                             <span class="form-hint">Employee ID is an immutable identifier to preserve 3-year attendance integrity.</span>
                         </div>
@@ -1464,16 +1716,16 @@
         </div>
 
         <!-- Reset Staff PIN Modal -->
-        <div class="modal-backdrop" id="reset-pin-modal" style="display: none;">
+        <div class="modal-backdrop" id="reset-pin-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="reset-pin-modal-title">
             <div class="modal-dialog modal-dialog-sm">
                 <div class="modal-header">
-                    <h3 class="modal-title">Reset Staff PIN</h3>
-                    <button class="modal-close-btn" onclick="closeResetPinModal()">&times;</button>
+                    <h3 class="modal-title" id="reset-pin-modal-title">Reset Staff PIN</h3>
+                    <button class="modal-close-btn" onclick="closeResetPinModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <form id="reset-pin-form" onsubmit="handleResetPinSubmit(event)">
                     <input type="hidden" id="reset-pin-employee-uuid">
                     <div class="modal-body">
-                        <div id="reset-pin-error-banner" class="alert alert-danger" style="display: none;"></div>
+                        <div id="reset-pin-error-banner" class="alert alert-danger" style="display: none;" role="alert" aria-live="assertive"></div>
 
                         <p class="confirm-subtext mb-3" id="reset-pin-subtext">Set a new numeric PIN for this staff member.</p>
 
@@ -1495,11 +1747,11 @@
         </div>
 
         <!-- Deactivation / Activation Confirmation Dialog -->
-        <div class="modal-backdrop" id="confirm-modal" style="display: none;">
+        <div class="modal-backdrop" id="confirm-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
             <div class="modal-dialog modal-dialog-sm">
                 <div class="modal-header">
                     <h3 class="modal-title" id="confirm-modal-title">Confirm Action</h3>
-                    <button class="modal-close-btn" onclick="closeConfirmModal()">&times;</button>
+                    <button class="modal-close-btn" onclick="closeConfirmModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="confirm-icon-box" id="confirm-icon-box">
@@ -1520,11 +1772,11 @@
         </div>
 
         <!-- Photo Evidence Modal (Admin Portal) -->
-        <div class="modal-backdrop" id="photo-modal" style="display: none;">
+        <div class="modal-backdrop" id="photo-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="photo-modal-title">
             <div class="modal-dialog modal-dialog-md">
                 <div class="modal-header">
                     <h3 class="modal-title" id="photo-modal-title">Attendance Photo Evidence</h3>
-                    <button class="modal-close-btn" onclick="closePhotoModal()">&times;</button>
+                    <button class="modal-close-btn" onclick="closePhotoModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <div class="modal-body text-center p-4">
                     <div id="photo-modal-loading" class="p-4">
@@ -1541,14 +1793,14 @@
         </div>
 
         <!-- Monthly Detailed Breakdown Modal (Day-by-Day Calendar View) -->
-        <div class="modal-backdrop" id="report-detail-modal" style="display: none;">
+        <div class="modal-backdrop" id="report-detail-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="report-detail-title">
             <div class="modal-dialog modal-dialog-lg" style="max-width: 950px; width: 95%;">
                 <div class="modal-header">
                     <div>
                         <h3 class="modal-title" id="report-detail-title">Staff Monthly Attendance Breakdown</h3>
                         <p class="text-muted text-sm mb-0" id="report-detail-subtitle">Day-by-day punch activity and calculated session durations.</p>
                     </div>
-                    <button class="modal-close-btn" onclick="closeReportDetailModal()">&times;</button>
+                    <button class="modal-close-btn" onclick="closeReportDetailModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <div class="modal-body p-3" style="max-height: 70vh; overflow-y: auto;">
                     <div id="report-detail-loading" class="text-center p-4" style="display: none;">
@@ -1583,18 +1835,18 @@
         </div>
 
         <!-- Attendance Correction & Missed Punch Modal -->
-        <div class="modal-backdrop" id="correction-modal" style="display: none;">
+        <div class="modal-backdrop" id="correction-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="correction-modal-title">
             <div class="modal-dialog modal-dialog-md" style="max-width: 650px;">
                 <div class="modal-header">
                     <div>
-                        <h3 class="modal-title">Attendance Correction & Audit</h3>
+                        <h3 class="modal-title" id="correction-modal-title">Attendance Correction & Audit</h3>
                         <p class="text-muted text-sm mb-0">Record verified punch adjustments with an immutable audit trail.</p>
                     </div>
-                    <button class="modal-close-btn" onclick="closeCorrectionModal()">&times;</button>
+                    <button class="modal-close-btn" onclick="closeCorrectionModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <form id="correction-form" onsubmit="submitCorrection(event)">
                     <div class="modal-body p-4">
-                        <div id="correction-error-banner" class="alert alert-danger" style="display: none;"></div>
+                        <div id="correction-error-banner" class="alert alert-danger" style="display: none;" role="alert" aria-live="assertive"></div>
 
                         <!-- Current Record Snapshot Box -->
                         <div class="card p-3 mb-3" style="background: var(--bg-secondary, #f8fafc); border: 1px solid var(--border-color, #e2e8f0);">
@@ -1678,18 +1930,18 @@
         </div>
 
         <!-- Manual Attendance Entry Modal -->
-        <div class="modal-backdrop" id="manual-entry-modal" style="display: none;">
+        <div class="modal-backdrop" id="manual-entry-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="manual-entry-title">
             <div class="modal-dialog modal-dialog-md" style="max-width: 600px;">
                 <div class="modal-header">
                     <div>
-                        <h3 class="modal-title">Add Manual Attendance Entry</h3>
+                        <h3 class="modal-title" id="manual-entry-title">Add Manual Attendance Entry</h3>
                         <p class="text-muted text-sm mb-0">Record authorized attendance for a staff member with administrator audit verification.</p>
                     </div>
-                    <button class="modal-close-btn" onclick="closeManualEntryModal()">&times;</button>
+                    <button class="modal-close-btn" onclick="closeManualEntryModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <form id="manual-entry-form" onsubmit="submitManualEntry(event)">
                     <div class="modal-body p-4">
-                        <div id="manual-error-banner" class="alert alert-danger" style="display: none;"></div>
+                        <div id="manual-error-banner" class="alert alert-danger" style="display: none;" role="alert" aria-live="assertive"></div>
 
                         <div class="form-group">
                             <label for="manual-emp-select" class="form-label">Staff Member <span class="required">*</span></label>
@@ -1736,14 +1988,14 @@
         </div>
 
         <!-- Immutable Audit History Modal -->
-        <div class="modal-backdrop" id="audit-history-modal" style="display: none;">
+        <div class="modal-backdrop" id="audit-history-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="audit-history-title">
             <div class="modal-dialog modal-dialog-lg" style="max-width: 850px; width: 95%;">
                 <div class="modal-header">
                     <div>
-                        <h3 class="modal-title">Attendance Change History & Audit Trail</h3>
+                        <h3 class="modal-title" id="audit-history-title">Attendance Change History & Audit Trail</h3>
                         <p class="text-muted text-sm mb-0">Immutable, server-verified log of administrative corrections, missed punch resolutions, and manual entries.</p>
                     </div>
-                    <button class="modal-close-btn" onclick="closeAuditHistoryModal()">&times;</button>
+                    <button class="modal-close-btn" onclick="closeAuditHistoryModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <div class="modal-body p-4" style="max-height: 70vh; overflow-y: auto;">
                     <div class="card p-3 mb-3" style="background: var(--bg-secondary, #f8fafc); border: 1px solid var(--border-color, #e2e8f0); display: flex; justify-content: space-between; align-items: center;">
@@ -1777,14 +2029,14 @@
         </div>
 
         <!-- Safe Cleanup Execution Confirmation Modal -->
-        <div class="modal-backdrop" id="storage-cleanup-confirm-modal" style="display: none;">
+        <div class="modal-backdrop" id="storage-cleanup-confirm-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="cleanup-modal-title">
             <div class="modal-dialog" style="max-width: 520px;">
                 <div class="modal-header">
                     <div>
-                        <h3 class="modal-title text-danger">Confirm Photo Cleanup Execution</h3>
+                        <h3 class="modal-title text-danger" id="cleanup-modal-title">Confirm Photo Cleanup Execution</h3>
                         <p class="text-muted text-sm mb-0">Execute two-phase safe photo deletion workflow.</p>
                     </div>
-                    <button class="modal-close-btn" onclick="closeCleanupConfirmModal()">&times;</button>
+                    <button class="modal-close-btn" onclick="closeCleanupConfirmModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <div class="modal-body p-4">
                     <p class="text-sm">
@@ -1814,11 +2066,11 @@
         </div>
 
         <!-- ================= MODAL: PAIR NEW DEVICE ================= -->
-        <div id="pair-device-modal" class="modal-backdrop" style="display: none;">
-            <div class="modal-card">
+        <div id="pair-device-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="pair-modal-title">
+            <div class="modal-dialog modal-card">
                 <div class="modal-header">
-                    <h3 class="modal-title">Authorize New Kiosk Workstation</h3>
-                    <button class="btn-close-modal" onclick="closePairDeviceModal()">&times;</button>
+                    <h3 class="modal-title" id="pair-modal-title">Authorize New Kiosk Workstation</h3>
+                    <button class="modal-close-btn" onclick="closePairDeviceModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <div class="modal-body">
                     <!-- Step 1: Input device name -->
@@ -1826,7 +2078,7 @@
                         <p class="text-sm text-muted mb-3">
                             Initiate a secure pairing session to authorize a dedicated computer, tablet, or browser to operate the attendance kiosk.
                         </p>
-                        <div id="pair-device-error" class="alert alert-danger" style="display: none;"></div>
+                        <div id="pair-device-error" class="alert alert-danger" style="display: none;" role="alert" aria-live="assertive"></div>
                         <div class="form-group">
                             <label for="pair-device-name-input" class="form-label">Workstation / Terminal Name</label>
                             <input type="text" id="pair-device-name-input" class="form-control" placeholder="e.g. Front Desk Terminal" maxlength="100" required>
@@ -1873,14 +2125,14 @@
         </div>
 
         <!-- ================= MODAL: REVOKE DEVICE ================= -->
-        <div id="revoke-device-modal" class="modal-backdrop" style="display: none;">
-            <div class="modal-card">
+        <div id="revoke-device-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="revoke-modal-title">
+            <div class="modal-dialog modal-card">
                 <div class="modal-header">
-                    <h3 class="modal-title">Revoke Workstation Authorization</h3>
-                    <button class="btn-close-modal" onclick="closeRevokeDeviceModal()">&times;</button>
+                    <h3 class="modal-title" id="revoke-modal-title">Revoke Workstation Authorization</h3>
+                    <button class="modal-close-btn" onclick="closeRevokeDeviceModal()" aria-label="Close dialog">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div id="revoke-device-error" class="alert alert-danger" style="display: none;"></div>
+                    <div id="revoke-device-error" class="alert alert-danger" style="display: none;" role="alert" aria-live="assertive"></div>
                     <p class="text-sm">
                         You are about to revoke authorization for <strong id="revoke-device-name-display">Device</strong>.
                     </p>
@@ -1907,12 +2159,50 @@
             </div>
         </div>
 
+        <!-- ================= MODAL: EMPLOYEE MONTHLY REPORT BREAKDOWN ================= -->
+        <div id="report-detail-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="report-detail-title">
+            <div class="modal-dialog modal-card report-detail-dialog" style="max-width: 960px; width: 95%;">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title" id="report-detail-title">Employee Monthly Breakdown</h3>
+                        <p class="modal-subtitle text-muted text-sm mb-0" id="report-detail-subtitle">Daily punches and duration</p>
+                    </div>
+                    <button class="modal-close-btn" onclick="closeReportDetailModal()" aria-label="Close dialog">&times;</button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive report-detail-table-wrapper">
+                        <table class="data-table report-detail-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="min-width: 100px;">Date</th>
+                                    <th scope="col" style="min-width: 60px;">Day</th>
+                                    <th scope="col" style="min-width: 130px;">Check-In (IST)</th>
+                                    <th scope="col" style="min-width: 130px;">Check-Out (IST)</th>
+                                    <th scope="col" style="min-width: 90px;">Duration</th>
+                                    <th scope="col" style="min-width: 120px;">Status</th>
+                                    <th scope="col" style="min-width: 90px;">Photo Evidence</th>
+                                    <th scope="col" style="min-width: 130px;">Audit Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-detail-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer report-detail-footer">
+                    <span class="report-detail-footer-summary font-weight-bold" id="report-detail-footer-summary">Total Monthly Duration: --</span>
+                    <button type="button" class="btn btn-secondary" onclick="closeReportDetailModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast Notifications -->
-        <div id="toast-container" class="toast-container"></div>
+        <div id="toast-container" class="toast-container" aria-live="polite" role="status"></div>
 
     </div>
 
     <!-- Application Script -->
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=25"></script>
 </body>
 </html>

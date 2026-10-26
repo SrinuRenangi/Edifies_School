@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/storage")
-@CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminStorageController {
 

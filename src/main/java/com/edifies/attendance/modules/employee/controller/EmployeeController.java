@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/employees")
-@CrossOrigin(origins = "*")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -60,6 +59,7 @@ public class EmployeeController {
         return ResponseEntity.ok(updated);
     }
 
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/reset-pin")
     public ResponseEntity<Void> resetPin(
             @PathVariable UUID id,

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/kiosk/devices")
-@CrossOrigin(origins = "*")
 public class KioskDeviceController {
 
     private final KioskDeviceService kioskDeviceService;

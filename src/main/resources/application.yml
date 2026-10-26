@@ -29,8 +29,10 @@ spring:
 server:
   port: ${PORT:8080}
   error:
-    include-message: always
-    include-binding-errors: always
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
 
 logging:
   level:
@@ -45,9 +47,23 @@ attendance:
     storage-root: ${PHOTO_STORAGE_ROOT:photos}
     max-file-size: 2097152
     retention-days: ${PHOTO_RETENTION_DAYS:90}
+  backup:
+    enabled: ${BACKUP_ENABLED:true}
+    storage-root: ${BACKUP_STORAGE_ROOT:backups}
+    cron: ${BACKUP_CRON:0 0 1 * * ?}
+    pg-bin-dir: ${PG_BIN_DIR:C:\Program Files\PostgreSQL\17\bin}
+    encryption-enabled: ${BACKUP_ENCRYPTION_ENABLED:false}
+    encryption-key: ${BACKUP_ENCRYPTION_KEY:}
+    rpo-target-hours: ${BACKUP_RPO_HOURS:24}
+    rto-target-minutes: ${BACKUP_RTO_MINUTES:5}
+    retention:
+      keep-daily: ${BACKUP_RETENTION_DAILY:7}
+      keep-weekly: ${BACKUP_RETENTION_WEEKLY:4}
+      keep-monthly: ${BACKUP_RETENTION_MONTHLY:3}
 
 app:
   kiosk:
     device-enforcement-enabled: ${DEVICE_ENFORCEMENT_ENABLED:true}
+
 
 

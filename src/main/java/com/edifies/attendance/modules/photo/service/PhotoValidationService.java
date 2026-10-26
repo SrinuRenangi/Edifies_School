@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 @Service
 public class PhotoValidationService {
@@ -32,6 +36,7 @@ public class PhotoValidationService {
     /**
      * Validates an uploaded photo file for attendance evidence.
      * Checks file presence, size limits, binary magic bytes, image decodability, and dimensions.
+     * Protects against decompression bombs and re-encodes to strip private EXIF metadata.
      */
     public PhotoValidationResult validate(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -59,10 +64,52 @@ public class PhotoValidationService {
             throw new InvalidOperationException("Unsupported or invalid image format. Only JPEG, PNG, and WebP images are permitted.");
         }
 
-        // 2. Decode the image to verify integrity and prevent image parsing exploits
-        BufferedImage bufferedImage;
-        try {
-            bufferedImage = ImageIO.read(new ByteArrayInputStream(bytes));
+        // 2. Inspect dimensions before allocating full raster to prevent decompression bombs (pixel flood)
+        int width;
+        int height;
+        BufferedImage bufferedImage = null;
+
+        try (ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+            if (readers.hasNext()) {
+                ImageReader reader = readers.next();
+                try {
+                    reader.setInput(iis, true, true);
+                    width = reader.getWidth(0);
+                    height = reader.getHeight(0);
+
+                    // Check bounds before full raster read
+                    if (width < MIN_WIDTH || height < MIN_HEIGHT) {
+                        throw new InvalidOperationException(String.format("Image dimensions (%dx%d) are too small. Minimum resolution required is %dx%d.",
+                                width, height, MIN_WIDTH, MIN_HEIGHT));
+                    }
+                    if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+                        throw new InvalidOperationException(String.format("Image dimensions (%dx%d) exceed maximum allowed resolution (%dx%d).",
+                                width, height, MAX_WIDTH, MAX_HEIGHT));
+                    }
+
+                    bufferedImage = reader.read(0);
+                } finally {
+                    reader.dispose();
+                }
+            } else {
+                bufferedImage = ImageIO.read(new ByteArrayInputStream(bytes));
+                if (bufferedImage == null) {
+                    throw new InvalidOperationException("Invalid image content. The uploaded file is not a valid decodable photograph.");
+                }
+                width = bufferedImage.getWidth();
+                height = bufferedImage.getHeight();
+                if (width < MIN_WIDTH || height < MIN_HEIGHT) {
+                    throw new InvalidOperationException(String.format("Image dimensions (%dx%d) are too small. Minimum resolution required is %dx%d.",
+                            width, height, MIN_WIDTH, MIN_HEIGHT));
+                }
+                if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+                    throw new InvalidOperationException(String.format("Image dimensions (%dx%d) exceed maximum allowed resolution (%dx%d).",
+                            width, height, MAX_WIDTH, MAX_HEIGHT));
+                }
+            }
+        } catch (InvalidOperationException ioe) {
+            throw ioe;
         } catch (Exception e) {
             log.warn("Image decoding error for uploaded photo", e);
             throw new InvalidOperationException("Photo file is corrupted or could not be decoded. Please retake the photo.");
@@ -73,18 +120,20 @@ public class PhotoValidationService {
             throw new InvalidOperationException("Invalid image content. The uploaded file is not a valid decodable photograph.");
         }
 
-        int width = bufferedImage.getWidth();
-        int height = bufferedImage.getHeight();
-
-        // 3. Verify acceptable dimensions
-        if (width < MIN_WIDTH || height < MIN_HEIGHT) {
-            throw new InvalidOperationException(String.format("Image dimensions (%dx%d) are too small. Minimum resolution required is %dx%d.",
-                    width, height, MIN_WIDTH, MIN_HEIGHT));
-        }
-
-        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-            throw new InvalidOperationException(String.format("Image dimensions (%dx%d) exceed maximum allowed resolution (%dx%d).",
-                    width, height, MAX_WIDTH, MAX_HEIGHT));
+        // 3. Re-encode image to strip private EXIF metadata if EXIF marker is detected
+        byte[] sanitizedBytes = bytes;
+        if (hasExifMarker(bytes)) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                String writeFormat = "PNG".equalsIgnoreCase(detectedFormat) ? "png" : "jpg";
+                boolean success = ImageIO.write(bufferedImage, writeFormat, baos);
+                if (success && baos.size() > 0) {
+                    sanitizedBytes = baos.toByteArray();
+                    log.info("Private EXIF metadata detected and stripped from photo: original={} bytes, sanitized={} bytes", bytes.length, sanitizedBytes.length);
+                }
+            } catch (Exception e) {
+                log.warn("Could not re-encode photo, falling back to original verified bytes: {}", e.getMessage());
+            }
         }
 
         String mimeType = switch (detectedFormat) {
@@ -95,7 +144,21 @@ public class PhotoValidationService {
         };
 
         log.debug("Photo validated successfully: format='{}', size={} bytes, dimensions={}x{}", detectedFormat, fileSize, width, height);
-        return new PhotoValidationResult(width, height, fileSize, detectedFormat, mimeType);
+        return new PhotoValidationResult(width, height, fileSize, detectedFormat, mimeType, sanitizedBytes);
+    }
+
+    /**
+     * Inspects JPEG header for APP1 (0xFF 0xE1) EXIF segment.
+     */
+    public static boolean hasExifMarker(byte[] bytes) {
+        if (bytes == null || bytes.length < 4) return false;
+        int limit = Math.min(bytes.length - 1, 4096);
+        for (int i = 0; i < limit; i++) {
+            if ((bytes[i] & 0xFF) == 0xFF && (bytes[i + 1] & 0xFF) == 0xE1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

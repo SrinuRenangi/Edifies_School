@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/dashboard")
-@CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDashboardController {
 

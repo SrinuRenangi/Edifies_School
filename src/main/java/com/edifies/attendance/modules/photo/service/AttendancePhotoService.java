@@ -91,7 +91,10 @@ public class AttendancePhotoService {
 
         String storagePath = null;
         try {
-            storagePath = photoStorageService.store(file.getInputStream(), relativeDir, fileName);
+            java.io.InputStream photoStream = (validationResult.sanitizedBytes() != null)
+                    ? new java.io.ByteArrayInputStream(validationResult.sanitizedBytes())
+                    : file.getInputStream();
+            storagePath = photoStorageService.store(photoStream, relativeDir, fileName);
 
             // 4. Save metadata to PostgreSQL
             AttendancePhoto photo = new AttendancePhoto(

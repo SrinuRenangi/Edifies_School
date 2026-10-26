@@ -46,6 +46,7 @@ class AdminSecurityIntegrationTest {
     void setUp() {
         authUrl = "http://localhost:" + port + "/api/auth/admin";
         adminEmployeesUrl = "http://localhost:" + port + "/api/admin/employees";
+        restTemplate.getRestTemplate().setRequestFactory(new org.springframework.http.client.JdkClientHttpRequestFactory());
         loginAttemptService.resetLockout("admin");
         loginAttemptService.resetLockout("inactive_admin");
     }

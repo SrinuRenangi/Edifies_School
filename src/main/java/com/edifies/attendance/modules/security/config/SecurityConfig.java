@@ -110,15 +110,15 @@ public class SecurityConfig {
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
             )
-            .headers(headers -> headers
-                .contentTypeOptions(Customizer.withDefaults())
-                .frameOptions(frame -> frame.deny())
-                .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                .contentSecurityPolicy(csp -> csp
-                    .policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'")
-                )
-
-            )
+            .headers(headers -> {
+                headers.contentTypeOptions(Customizer.withDefaults());
+                headers.frameOptions(frame -> frame.deny());
+                headers.referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
+                headers.permissionsPolicy(permissions -> permissions.policy("camera=(self), microphone=(), geolocation=(), payment=()"));
+                headers.contentSecurityPolicy(csp -> csp
+                    .policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'")
+                );
+            })
             .authorizeHttpRequests(authorize -> authorize
                 // Public Static Resources & Web UI
                 .requestMatchers(
@@ -139,6 +139,9 @@ public class SecurityConfig {
                 // Kiosk Endpoints: KioskDeviceAuthenticationFilter enforces registered device authorization
                 .requestMatchers("/api/kiosk/**").permitAll()
 
+                // Employee Directory Endpoints: Accessible to both ADMIN and MANAGER
+                .requestMatchers("/api/admin/employees/**").hasAnyRole("ADMIN", "MANAGER")
+
                 // Admin Endpoints: Strict ROLE_ADMIN check
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
@@ -151,12 +154,28 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @org.springframework.beans.factory.annotation.Value("${attendance.security.cors.allowed-origins:http://localhost:8080,http://localhost:4200,http://127.0.0.1:8080}")
+    private String allowedOriginsConfig;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:4200", "http://127.0.0.1:8080"));
+        java.util.List<String> origins = Arrays.stream(allowedOriginsConfig.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Kiosk-Device-Token",
+                "X-Kiosk-Session",
+                "X-Kiosk-Token",
+                "Idempotency-Key",
+                "X-Requested-With",
+                "Accept"
+        ));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

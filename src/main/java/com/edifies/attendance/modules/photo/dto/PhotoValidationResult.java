@@ -5,6 +5,10 @@ public record PhotoValidationResult(
         int height,
         long fileSize,
         String format,
-        String mimeType
+        String mimeType,
+        byte[] sanitizedBytes
 ) {
+    public PhotoValidationResult(int width, int height, long fileSize, String format, String mimeType) {
+        this(width, height, fileSize, format, mimeType, null);
+    }
 }

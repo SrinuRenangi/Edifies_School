@@ -10,6 +10,7 @@ const API_ADMIN_REPORTS = '/api/admin/reports';
 const API_ADMIN_STORAGE = '/api/admin/storage';
 const API_ADMIN_DEVICES = '/api/admin/devices';
 const API_ADMIN_DASHBOARD = '/api/admin/dashboard';
+const API_ADMIN_BACKUP = '/api/admin/backup';
 const API_KIOSK = '/api/kiosk';
 const API_KIOSK_ATTENDANCE = '/api/kiosk/attendance';
 const API_KIOSK_DEVICES = '/api/kiosk/devices';
@@ -59,6 +60,7 @@ const viewAdminAttendance = document.getElementById('view-admin-attendance');
 const viewAdminReports = document.getElementById('view-admin-reports');
 const viewAdminStorage = document.getElementById('view-admin-storage');
 const viewAdminDevices = document.getElementById('view-admin-devices');
+const viewAdminBackup = document.getElementById('view-admin-backup');
 const viewKiosk = document.getElementById('view-kiosk');
 
 const navDashboard = document.getElementById('nav-dashboard');
@@ -67,13 +69,17 @@ const navAttendance = document.getElementById('nav-attendance');
 const navReports = document.getElementById('nav-reports');
 const navStorage = document.getElementById('nav-storage');
 const navDevices = document.getElementById('nav-devices');
+const navBackup = document.getElementById('nav-backup');
 const navKiosk = document.getElementById('nav-kiosk');
 
 const adminUserInfo = document.getElementById('admin-user-info');
 const adminUserName = document.getElementById('admin-user-name');
+const adminUserRoleBadge = document.getElementById('admin-user-role-badge');
+const managerWorkspaceBanner = document.getElementById('manager-workspace-banner');
 
 const tableBody = document.getElementById('employee-table-body');
 const tableWrapper = document.getElementById('table-wrapper');
+const employeeCardsWrapper = document.getElementById('employee-cards-wrapper');
 const loadingSpinner = document.getElementById('loading-spinner');
 const errorBox = document.getElementById('error-box');
 const errorMessage = document.getElementById('error-message');
@@ -124,6 +130,9 @@ function setupEventListeners() {
     }
     if (navDevices) {
         navDevices.addEventListener('click', () => switchView('DEVICES'));
+    }
+    if (navBackup) {
+        navBackup.addEventListener('click', () => switchView('BACKUP'));
     }
     navKiosk.addEventListener('click', () => switchView('KIOSK'));
 
@@ -196,10 +205,16 @@ function setupEventListeners() {
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            closeMobileNav();
             closeRegisterModal();
             closeEditModal();
             closeResetPinModal();
             closeConfirmModal();
+            closePhotoModal();
+            closeReportDetailModal();
+            closeCorrectionModal();
+            closeManualEntryModal();
+            closeAuditHistoryModal();
             closeCleanupConfirmModal();
             closePairDeviceModal();
             closeRevokeDeviceModal();
@@ -221,10 +236,105 @@ function setupEventListeners() {
 }
 
 // ==========================================
+// Mobile Navigation Controls
+// ==========================================
+function toggleMobileNav() {
+    const navMenu = document.getElementById('nav-menu');
+    const toggleBtn = document.getElementById('nav-mobile-toggle');
+    const backdrop = document.getElementById('nav-mobile-backdrop');
+    if (!navMenu) return;
+
+    const isOpen = navMenu.classList.contains('mobile-open');
+    if (isOpen) {
+        closeMobileNav();
+    } else {
+        navMenu.classList.add('mobile-open');
+        if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+        if (backdrop) backdrop.style.display = 'block';
+    }
+}
+
+function closeMobileNav() {
+    const navMenu = document.getElementById('nav-menu');
+    const toggleBtn = document.getElementById('nav-mobile-toggle');
+    const backdrop = document.getElementById('nav-mobile-backdrop');
+    if (navMenu) navMenu.classList.remove('mobile-open');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    if (backdrop) backdrop.style.display = 'none';
+}
+
+// ==========================================
 // View Routing & State Switching
 // ==========================================
-function switchView(viewName) {
+function getViewFromHash() {
+    const raw = (window.location.hash || '').replace('#', '').trim().toUpperCase();
+    const validViews = ['DASHBOARD', 'DIRECTORY', 'ATTENDANCE', 'REPORTS', 'STORAGE', 'DEVICES', 'BACKUP', 'KIOSK'];
+    if (validViews.includes(raw)) {
+        return raw;
+    }
+    return null;
+}
+
+window.addEventListener('hashchange', () => {
+    const hashView = getViewFromHash();
+    if (hashView && hashView !== currentView) {
+        switchView(hashView, false);
+    }
+});
+
+function switchView(viewName, syncHash = true) {
+    // Route Guard: If authenticated as MANAGER, restrict to DIRECTORY and KIOSK only
+    if (activeAdmin && activeAdmin.role === 'ROLE_MANAGER') {
+        if (viewName !== 'DIRECTORY' && viewName !== 'KIOSK') {
+            console.warn(`Manager access to view '${viewName}' blocked by route guard; redirecting to DIRECTORY.`);
+            viewName = 'DIRECTORY';
+        }
+    }
+
     currentView = viewName;
+
+    // Synchronize browser URL hash
+    if (syncHash) {
+        const expectedHash = '#' + viewName.toLowerCase();
+        if (window.location.hash !== expectedHash) {
+            history.pushState(null, '', expectedHash);
+        }
+    }
+
+    // Automatically close mobile nav drawer upon navigation
+    closeMobileNav();
+
+    // Clean up timers & active media streams when navigating away from specific views
+    if (viewName !== 'KIOSK') {
+        stopKioskCamera();
+        revokePhotoPreview();
+        if (kioskTimerInterval) {
+            clearInterval(kioskTimerInterval);
+            kioskTimerInterval = null;
+        }
+        if (punchResetTimer) {
+            clearTimeout(punchResetTimer);
+            punchResetTimer = null;
+        }
+    }
+
+    if (viewName !== 'DEVICES') {
+        if (pairingCountdownInterval) {
+            clearInterval(pairingCountdownInterval);
+            pairingCountdownInterval = null;
+        }
+    }
+
+    if (viewName !== 'DASHBOARD') {
+        if (dashboardAutoRefreshTimer) {
+            clearInterval(dashboardAutoRefreshTimer);
+            dashboardAutoRefreshTimer = null;
+        }
+        if (dashboardQuickSearchTimer) {
+            clearTimeout(dashboardQuickSearchTimer);
+            dashboardQuickSearchTimer = null;
+        }
+    }
 
     if (navDashboard) {
         navDashboard.classList.toggle('active', viewName === 'DASHBOARD');
@@ -242,6 +352,9 @@ function switchView(viewName) {
     if (navDevices) {
         navDevices.classList.toggle('active', viewName === 'DEVICES');
     }
+    if (navBackup) {
+        navBackup.classList.toggle('active', viewName === 'BACKUP');
+    }
     navKiosk.classList.toggle('active', viewName === 'KIOSK');
 
     if (viewName === 'KIOSK') {
@@ -251,6 +364,7 @@ function switchView(viewName) {
         if (viewAdminReports) viewAdminReports.style.display = 'none';
         if (viewAdminStorage) viewAdminStorage.style.display = 'none';
         if (viewAdminDevices) viewAdminDevices.style.display = 'none';
+        if (viewAdminBackup) viewAdminBackup.style.display = 'none';
         viewAdminLogin.style.display = 'none';
         viewKiosk.style.display = 'block';
         resetKioskScreen();
@@ -262,6 +376,7 @@ function switchView(viewName) {
         if (viewAdminReports) viewAdminReports.style.display = 'none';
         if (viewAdminStorage) viewAdminStorage.style.display = 'none';
         if (viewAdminDevices) viewAdminDevices.style.display = 'none';
+        if (viewAdminBackup) viewAdminBackup.style.display = 'none';
         if (isAdminAuthenticated) {
             viewAdminLogin.style.display = 'none';
             if (viewAdminDashboard) viewAdminDashboard.style.display = 'block';
@@ -277,6 +392,7 @@ function switchView(viewName) {
         if (viewAdminReports) viewAdminReports.style.display = 'none';
         if (viewAdminStorage) viewAdminStorage.style.display = 'none';
         if (viewAdminDevices) viewAdminDevices.style.display = 'none';
+        if (viewAdminBackup) viewAdminBackup.style.display = 'none';
         if (isAdminAuthenticated) {
             viewAdminLogin.style.display = 'none';
             if (viewAdminAttendance) viewAdminAttendance.style.display = 'block';
@@ -292,6 +408,7 @@ function switchView(viewName) {
         if (viewAdminAttendance) viewAdminAttendance.style.display = 'none';
         if (viewAdminStorage) viewAdminStorage.style.display = 'none';
         if (viewAdminDevices) viewAdminDevices.style.display = 'none';
+        if (viewAdminBackup) viewAdminBackup.style.display = 'none';
         if (isAdminAuthenticated) {
             viewAdminLogin.style.display = 'none';
             if (viewAdminReports) viewAdminReports.style.display = 'block';
@@ -307,6 +424,7 @@ function switchView(viewName) {
         if (viewAdminAttendance) viewAdminAttendance.style.display = 'none';
         if (viewAdminReports) viewAdminReports.style.display = 'none';
         if (viewAdminDevices) viewAdminDevices.style.display = 'none';
+        if (viewAdminBackup) viewAdminBackup.style.display = 'none';
         if (isAdminAuthenticated) {
             viewAdminLogin.style.display = 'none';
             if (viewAdminStorage) viewAdminStorage.style.display = 'block';
@@ -322,6 +440,7 @@ function switchView(viewName) {
         if (viewAdminAttendance) viewAdminAttendance.style.display = 'none';
         if (viewAdminReports) viewAdminReports.style.display = 'none';
         if (viewAdminStorage) viewAdminStorage.style.display = 'none';
+        if (viewAdminBackup) viewAdminBackup.style.display = 'none';
         if (isAdminAuthenticated) {
             viewAdminLogin.style.display = 'none';
             if (viewAdminDevices) viewAdminDevices.style.display = 'block';
@@ -331,6 +450,22 @@ function switchView(viewName) {
             if (viewAdminDevices) viewAdminDevices.style.display = 'none';
             viewAdminLogin.style.display = 'flex';
         }
+    } else if (viewName === 'BACKUP') {
+        viewKiosk.style.display = 'none';
+        if (viewAdminDashboard) viewAdminDashboard.style.display = 'none';
+        viewAdminDirectory.style.display = 'none';
+        if (viewAdminAttendance) viewAdminAttendance.style.display = 'none';
+        if (viewAdminReports) viewAdminReports.style.display = 'none';
+        if (viewAdminStorage) viewAdminStorage.style.display = 'none';
+        if (viewAdminDevices) viewAdminDevices.style.display = 'none';
+        if (isAdminAuthenticated) {
+            viewAdminLogin.style.display = 'none';
+            if (viewAdminBackup) viewAdminBackup.style.display = 'block';
+            loadBackupDashboard();
+        } else {
+            if (viewAdminBackup) viewAdminBackup.style.display = 'none';
+            viewAdminLogin.style.display = 'flex';
+        }
     } else { // DIRECTORY
         viewKiosk.style.display = 'none';
         if (viewAdminDashboard) viewAdminDashboard.style.display = 'none';
@@ -338,6 +473,7 @@ function switchView(viewName) {
         if (viewAdminReports) viewAdminReports.style.display = 'none';
         if (viewAdminStorage) viewAdminStorage.style.display = 'none';
         if (viewAdminDevices) viewAdminDevices.style.display = 'none';
+        if (viewAdminBackup) viewAdminBackup.style.display = 'none';
         if (isAdminAuthenticated) {
             viewAdminLogin.style.display = 'none';
             viewAdminDirectory.style.display = 'block';
@@ -350,7 +486,7 @@ function switchView(viewName) {
 }
 
 // ==========================================
-// Administrator Authentication
+// Role-Based Authentication & Navigation
 // ==========================================
 async function checkAdminSession() {
     try {
@@ -358,18 +494,26 @@ async function checkAdminSession() {
             credentials: 'include'
         });
 
+        const requestedView = getViewFromHash();
+
         if (response.ok) {
             const admin = await response.json();
             setAuthenticatedAdmin(admin);
-            switchView('DASHBOARD');
+            if (admin.role === 'ROLE_MANAGER') {
+                const target = (requestedView === 'KIOSK') ? 'KIOSK' : 'DIRECTORY';
+                switchView(target);
+            } else {
+                switchView(requestedView || 'DASHBOARD');
+            }
         } else {
             setUnauthenticatedAdmin();
-            switchView('DASHBOARD');
+            switchView(requestedView || 'DASHBOARD');
         }
     } catch (err) {
         console.warn('Session verification failed, defaulting to unauthenticated:', err);
         setUnauthenticatedAdmin();
-        switchView('DASHBOARD');
+        const requestedView = getViewFromHash();
+        switchView(requestedView || 'DASHBOARD');
     }
 }
 
@@ -377,13 +521,41 @@ function setAuthenticatedAdmin(admin) {
     isAdminAuthenticated = true;
     activeAdmin = admin;
     adminUserName.textContent = admin.fullName || admin.username;
+    if (adminUserRoleBadge) {
+        const roleShort = (admin.role || '').replace('ROLE_', '');
+        adminUserRoleBadge.textContent = roleShort || 'ADMIN';
+        adminUserRoleBadge.className = roleShort === 'MANAGER' ? 'badge-pill badge-pill-warning' : 'badge-pill badge-pill-active';
+    }
     adminUserInfo.style.display = 'flex';
+    applyRoleBasedNavigation(admin.role);
 }
 
 function setUnauthenticatedAdmin() {
     isAdminAuthenticated = false;
     activeAdmin = null;
     adminUserInfo.style.display = 'none';
+    applyRoleBasedNavigation(null);
+}
+
+function applyRoleBasedNavigation(role) {
+    const isManager = role === 'ROLE_MANAGER';
+
+    // Modules restricted from Manager: Dashboard, Attendance Log, Reports, Storage, Devices, Backup
+    if (navDashboard) navDashboard.style.display = isManager ? 'none' : '';
+    if (navAttendance) navAttendance.style.display = isManager ? 'none' : '';
+    if (navReports) navReports.style.display = isManager ? 'none' : '';
+    if (navStorage) navStorage.style.display = isManager ? 'none' : '';
+    if (navDevices) navDevices.style.display = isManager ? 'none' : '';
+    if (navBackup) navBackup.style.display = isManager ? 'none' : '';
+
+    // Allowed for both roles: Staff Directory and Attendance Kiosk
+    if (navEmployees) navEmployees.style.display = '';
+    if (navKiosk) navKiosk.style.display = '';
+
+    // Manager workspace banner in Staff Directory
+    if (managerWorkspaceBanner) {
+        managerWorkspaceBanner.style.display = isManager ? 'block' : 'none';
+    }
 }
 
 async function handleAdminLogin(event) {
@@ -412,8 +584,15 @@ async function handleAdminLogin(event) {
         }
 
         setAuthenticatedAdmin(data);
-        showToast('Administrator authenticated successfully.', 'success');
-        switchView('DASHBOARD');
+        const roleLabel = data.role === 'ROLE_MANAGER' ? 'Operations Manager' : 'Administrator';
+        showToast(`${roleLabel} authenticated successfully.`, 'success');
+
+        const requestedView = getViewFromHash();
+        if (data.role === 'ROLE_MANAGER') {
+            switchView((requestedView === 'KIOSK') ? 'KIOSK' : 'DIRECTORY');
+        } else {
+            switchView(requestedView || 'DASHBOARD');
+        }
     } catch (err) {
         errorBanner.textContent = err.message;
         errorBanner.style.display = 'block';
@@ -432,7 +611,7 @@ async function handleAdminLogout() {
         console.warn('Logout request completed with warning:', err);
     } finally {
         setUnauthenticatedAdmin();
-        showToast('Administrator session ended.', 'success');
+        showToast('Session ended successfully.', 'success');
         switchView('DIRECTORY');
     }
 }
@@ -494,37 +673,123 @@ function renderFilteredTable() {
 
     if (filtered.length === 0) {
         emptyState.style.display = 'block';
-        tableWrapper.style.display = 'none';
+        if (tableWrapper) tableWrapper.style.display = 'none';
+        if (employeeCardsWrapper) employeeCardsWrapper.style.display = 'none';
         return;
     }
 
-    tableWrapper.style.display = 'block';
+    if (tableWrapper) tableWrapper.style.display = '';
     tableBody.innerHTML = filtered.map(emp => createEmployeeRow(emp)).join('');
+
+    if (employeeCardsWrapper) {
+        employeeCardsWrapper.style.display = '';
+        employeeCardsWrapper.innerHTML = filtered.map(emp => createEmployeeCard(emp)).join('');
+    }
+}
+
+function createEmployeeCard(emp) {
+    const formattedDate = formatDateTime(emp.createdAt);
+    const isActive = emp.status === 'ACTIVE';
+    const statusBadge = isActive
+        ? `<span class="status-badge active"><span class="status-dot" aria-hidden="true"></span>Active</span>`
+        : `<span class="status-badge inactive"><span class="status-dot" aria-hidden="true"></span>Inactive</span>`;
+
+    const toggleBtn = isActive
+        ? `<button class="btn btn-danger btn-sm action-btn" onclick="openDeactivateConfirm('${emp.id}', '${escapeHtml(emp.fullName)}')" title="Deactivate staff member">Deactivate</button>`
+        : `<button class="btn btn-success btn-sm action-btn" onclick="openActivateConfirm('${emp.id}', '${escapeHtml(emp.fullName)}')" title="Activate staff member">Activate</button>`;
+
+    const isManager = activeAdmin && activeAdmin.role === 'ROLE_MANAGER';
+
+    const historyBtn = !isManager
+        ? `<button class="btn btn-secondary btn-sm action-btn" onclick="viewEmployeeAttendanceHistory('${escapeHtml(emp.employeeId)}')" title="View attendance history">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>History</span>
+          </button>`
+        : '';
+    const resetPinBtn = !isManager
+        ? `<button class="btn btn-secondary btn-sm action-btn" onclick="openResetPinModal('${emp.id}', '${escapeHtml(emp.fullName)}', '${escapeHtml(emp.employeeId)}')" title="Reset staff PIN">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Reset PIN</span>
+          </button>`
+        : '';
+
+    return `
+        <article class="emp-mobile-card" data-employee-id="${escapeHtml(emp.employeeId)}">
+            <div class="emp-card-header">
+                <div class="emp-card-identity">
+                    <span class="mono-pill">${escapeHtml(emp.employeeId)}</span>
+                    <h3 class="emp-card-name">${escapeHtml(emp.fullName)}</h3>
+                </div>
+                <div class="emp-card-status">
+                    ${statusBadge}
+                </div>
+            </div>
+            <div class="emp-card-meta">
+                <div class="emp-meta-item">
+                    <span class="emp-meta-label">Department</span>
+                    <span class="dept-pill">${escapeHtml(emp.department || 'General')}</span>
+                </div>
+                <div class="emp-meta-item">
+                    <span class="emp-meta-label">Registered</span>
+                    <span class="emp-meta-val">${formattedDate}</span>
+                </div>
+            </div>
+            <div class="emp-card-actions">
+                ${historyBtn}
+                <button class="btn btn-secondary btn-sm action-btn" onclick="openEditModal('${emp.id}', '${escapeHtml(emp.employeeId)}', '${escapeHtml(emp.fullName)}', '${escapeHtml(emp.department || '')}')" title="Edit employee details">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span>Edit</span>
+                </button>
+                ${resetPinBtn}
+                ${toggleBtn}
+            </div>
+        </article>
+    `;
 }
 
 function createEmployeeRow(emp) {
     const formattedDate = formatDateTime(emp.createdAt);
     const isActive = emp.status === 'ACTIVE';
     const statusBadge = isActive
-        ? `<span class="badge badge-active">ACTIVE</span>`
-        : `<span class="badge badge-inactive">INACTIVE</span>`;
+        ? `<span class="status-badge active"><span class="status-dot" aria-hidden="true"></span>Active</span>`
+        : `<span class="status-badge inactive"><span class="status-dot" aria-hidden="true"></span>Inactive</span>`;
 
     const toggleBtn = isActive
-        ? `<button class="btn btn-danger btn-sm" onclick="openDeactivateConfirm('${emp.id}', '${escapeHtml(emp.fullName)}')">Deactivate</button>`
-        : `<button class="btn btn-success btn-sm" onclick="openActivateConfirm('${emp.id}', '${escapeHtml(emp.fullName)}')">Activate</button>`;
+        ? `<button class="btn btn-danger btn-sm action-btn" onclick="openDeactivateConfirm('${emp.id}', '${escapeHtml(emp.fullName)}')" title="Deactivate staff member">Deactivate</button>`
+        : `<button class="btn btn-success btn-sm action-btn" onclick="openActivateConfirm('${emp.id}', '${escapeHtml(emp.fullName)}')" title="Activate staff member">Activate</button>`;
+
+    const isManager = activeAdmin && activeAdmin.role === 'ROLE_MANAGER';
+
+    const historyBtn = !isManager
+        ? `<button class="btn btn-secondary btn-sm action-btn" onclick="viewEmployeeAttendanceHistory('${escapeHtml(emp.employeeId)}')" title="View attendance history">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>History</span>
+          </button>`
+        : '';
+    const resetPinBtn = !isManager
+        ? `<button class="btn btn-secondary btn-sm action-btn" onclick="openResetPinModal('${emp.id}', '${escapeHtml(emp.fullName)}', '${escapeHtml(emp.employeeId)}')" title="Reset staff PIN">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Reset PIN</span>
+          </button>`
+        : '';
 
     return `
         <tr>
-            <td class="font-mono font-medium">${escapeHtml(emp.employeeId)}</td>
-            <td class="font-medium">${escapeHtml(emp.fullName)}</td>
-            <td><span class="dept-pill">${escapeHtml(emp.department)}</span></td>
-            <td>${statusBadge}</td>
-            <td class="text-secondary text-sm">${formattedDate}</td>
-            <td class="text-right table-actions">
-                <button class="btn btn-secondary btn-sm" onclick="viewEmployeeAttendanceHistory('${escapeHtml(emp.employeeId)}')">History</button>
-                <button class="btn btn-secondary btn-sm" onclick="openEditModal('${emp.id}', '${escapeHtml(emp.employeeId)}', '${escapeHtml(emp.fullName)}', '${escapeHtml(emp.department)}')">Edit</button>
-                <button class="btn btn-secondary btn-sm" onclick="openResetPinModal('${emp.id}', '${escapeHtml(emp.fullName)}', '${escapeHtml(emp.employeeId)}')">Reset PIN</button>
-                ${toggleBtn}
+            <td data-label="Employee ID"><span class="mono-pill">${escapeHtml(emp.employeeId)}</span></td>
+            <td data-label="Full Name"><span class="emp-name-text">${escapeHtml(emp.fullName)}</span></td>
+            <td data-label="Department"><span class="dept-pill">${escapeHtml(emp.department || 'General')}</span></td>
+            <td data-label="Status">${statusBadge}</td>
+            <td data-label="Registration Date" class="text-secondary text-sm">${formattedDate}</td>
+            <td data-label="Actions" class="text-right table-actions-cell">
+                <div class="action-buttons">
+                    ${historyBtn}
+                    <button class="btn btn-secondary btn-sm action-btn" onclick="openEditModal('${emp.id}', '${escapeHtml(emp.employeeId)}', '${escapeHtml(emp.fullName)}', '${escapeHtml(emp.department || '')}')" title="Edit employee details">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <span>Edit</span>
+                    </button>
+                    ${resetPinBtn}
+                    ${toggleBtn}
+                </div>
             </td>
         </tr>
     `;
@@ -791,16 +1056,6 @@ function clearKioskPin() {
     kioskPinInput.value = '';
 }
 
-function resetKioskScreen() {
-    clearInterval(kioskTimerInterval);
-    currentKioskToken = null;
-    kioskEmployeeIdInput.value = '';
-    kioskPinInput.value = '';
-    kioskErrorBanner.style.display = 'none';
-    kioskAuthState.style.display = 'none';
-    kioskNeutralState.style.display = 'block';
-}
-
 async function handleKioskAuthenticate() {
     kioskErrorBanner.style.display = 'none';
     const employeeId = kioskEmployeeIdInput.value.trim();
@@ -926,20 +1181,28 @@ let activeCameraStream = null;
 let capturedPhotoBlob = null;
 let capturedPreviewUrl = null;
 let currentCameraAction = null; // 'CHECK_IN' or 'CHECK_OUT'
+let isCameraStarting = false;
 
 async function startKioskCamera(actionType) {
+    if (isCameraStarting) return;
+    isCameraStarting = true;
     currentCameraAction = actionType;
+
     const checkinCard = document.getElementById('kiosk-action-checkin');
     const checkoutCard = document.getElementById('kiosk-action-checkout');
     const cameraSection = document.getElementById('kiosk-camera-section');
     const cameraTitle = document.getElementById('kiosk-camera-mode-title');
     const errorBanner = document.getElementById('kiosk-camera-error');
     const confirmText = document.getElementById('confirm-punch-text');
+    const confirmBtn = document.getElementById('btn-camera-confirm');
+    const retakeBtn = document.getElementById('btn-camera-retake');
+    const captureBtn = document.getElementById('btn-camera-capture');
     const streamWrapper = document.getElementById('camera-stream-wrapper');
     const previewWrapper = document.getElementById('camera-preview-wrapper');
     const liveControls = document.getElementById('camera-live-controls');
     const capturedControls = document.getElementById('camera-captured-controls');
     const video = document.getElementById('kiosk-camera-video');
+    const cameraLoading = document.getElementById('camera-loading-overlay');
 
     if (checkinCard) checkinCard.style.display = 'none';
     if (checkoutCard) checkoutCard.style.display = 'none';
@@ -952,31 +1215,98 @@ async function startKioskCamera(actionType) {
         confirmText.textContent = actionType === 'CHECK_IN' ? 'Confirm & Check In' : 'Confirm & Check Out';
     }
 
+    // Reset button states and themes
+    if (confirmBtn) {
+        setButtonLoading(confirmBtn, false);
+        confirmBtn.disabled = false;
+        if (actionType === 'CHECK_IN') {
+            confirmBtn.classList.remove('btn-punch-out');
+            confirmBtn.classList.add('btn-punch-in');
+        } else {
+            confirmBtn.classList.remove('btn-punch-in');
+            confirmBtn.classList.add('btn-punch-out');
+        }
+    }
+    if (retakeBtn) retakeBtn.disabled = false;
+    if (captureBtn) captureBtn.disabled = true; // Disabled until stream is verified active
+
     streamWrapper.style.display = 'flex';
     previewWrapper.style.display = 'none';
     liveControls.style.display = 'flex';
     capturedControls.style.display = 'none';
     cameraSection.style.display = 'block';
+    if (cameraLoading) cameraLoading.style.display = 'flex';
 
+    // Stop any stale hardware tracks before acquiring a new session
     stopKioskCamera();
     revokePhotoPreview();
     capturedPhotoBlob = null;
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        isCameraStarting = false;
+        if (cameraLoading) cameraLoading.style.display = 'none';
         showCameraError('Camera API is not supported in this browser or context is not secure (requires HTTPS or localhost).');
         return;
     }
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+            video: {
+                facingMode: 'user',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            },
             audio: false
         });
+
+        // Guard against race condition: user cancelled while getUserMedia prompt was pending
+        if (currentCameraAction !== actionType) {
+            stream.getTracks().forEach(track => {
+                try { track.stop(); } catch (e) {}
+            });
+            isCameraStarting = false;
+            return;
+        }
+
         activeCameraStream = stream;
         video.srcObject = stream;
-        await video.play();
+
+        // Ensure video metadata and dimensions are ready before allowing frame capture
+        await new Promise((resolve) => {
+            if (video.readyState >= 2 && video.videoWidth > 0) {
+                resolve();
+            } else {
+                let resolved = false;
+                const onReady = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        video.removeEventListener('loadedmetadata', onReady);
+                        video.removeEventListener('playing', onReady);
+                        resolve();
+                    }
+                };
+                video.addEventListener('loadedmetadata', onReady, { once: true });
+                video.addEventListener('playing', onReady, { once: true });
+                setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        resolve();
+                    }
+                }, 2500);
+            }
+        });
+
+        try {
+            await video.play();
+        } catch (playErr) {
+            console.warn('Video play warning:', playErr);
+        }
+
+        if (cameraLoading) cameraLoading.style.display = 'none';
+        if (captureBtn) captureBtn.disabled = false;
     } catch (err) {
         console.error('Camera access error:', err);
+        if (cameraLoading) cameraLoading.style.display = 'none';
         if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
             showCameraError('Camera access is required to record attendance. Please allow camera permissions in your browser.');
         } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
@@ -986,6 +1316,8 @@ async function startKioskCamera(actionType) {
         } else {
             showCameraError(`Camera error: ${err.message || 'Unable to open camera.'}`);
         }
+    } finally {
+        isCameraStarting = false;
     }
 }
 
@@ -1009,6 +1341,8 @@ function captureKioskPhoto() {
     const previewWrapper = document.getElementById('camera-preview-wrapper');
     const liveControls = document.getElementById('camera-live-controls');
     const capturedControls = document.getElementById('camera-captured-controls');
+    const confirmBtn = document.getElementById('btn-camera-confirm');
+    const retakeBtn = document.getElementById('btn-camera-retake');
 
     if (!video || !video.videoWidth || !video.videoHeight) {
         showToast('Camera feed is still initializing. Please wait a moment.', 'warning');
@@ -1041,6 +1375,13 @@ function captureKioskPhoto() {
         liveControls.style.display = 'none';
         capturedControls.style.display = 'flex';
 
+        // Re-enable confirm and retake buttons cleanly
+        if (confirmBtn) {
+            setButtonLoading(confirmBtn, false);
+            confirmBtn.disabled = false;
+        }
+        if (retakeBtn) retakeBtn.disabled = false;
+
         // Immediately release live camera tracks
         stopKioskCamera();
     }, 'image/jpeg', 0.88);
@@ -1049,6 +1390,14 @@ function captureKioskPhoto() {
 function retakeKioskPhoto() {
     revokePhotoPreview();
     capturedPhotoBlob = null;
+    const confirmBtn = document.getElementById('btn-camera-confirm');
+    const retakeBtn = document.getElementById('btn-camera-retake');
+    if (confirmBtn) {
+        setButtonLoading(confirmBtn, false);
+        confirmBtn.disabled = false;
+    }
+    if (retakeBtn) retakeBtn.disabled = false;
+
     if (currentCameraAction) {
         startKioskCamera(currentCameraAction);
     }
@@ -1058,6 +1407,14 @@ function cancelKioskCamera() {
     stopKioskCamera();
     revokePhotoPreview();
     capturedPhotoBlob = null;
+
+    const confirmBtn = document.getElementById('btn-camera-confirm');
+    const retakeBtn = document.getElementById('btn-camera-retake');
+    if (confirmBtn) {
+        setButtonLoading(confirmBtn, false);
+        confirmBtn.disabled = false;
+    }
+    if (retakeBtn) retakeBtn.disabled = false;
 
     const cameraSection = document.getElementById('kiosk-camera-section');
     if (cameraSection) cameraSection.style.display = 'none';
@@ -1070,6 +1427,7 @@ function cancelKioskCamera() {
         if (card) card.style.display = 'block';
     }
     currentCameraAction = null;
+    isCameraStarting = false;
 }
 
 function stopKioskCamera() {
@@ -1084,7 +1442,10 @@ function stopKioskCamera() {
         activeCameraStream = null;
     }
     const video = document.getElementById('kiosk-camera-video');
-    if (video) video.srcObject = null;
+    if (video) {
+        try { video.pause(); } catch (e) {}
+        video.srcObject = null;
+    }
 }
 
 function revokePhotoPreview() {
@@ -1119,6 +1480,8 @@ async function confirmAndSubmitPunch() {
         ? `${API_KIOSK_ATTENDANCE}/check-in`
         : `${API_KIOSK_ATTENDANCE}/check-out`;
 
+    const performedAction = currentCameraAction;
+
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -1144,12 +1507,14 @@ async function confirmAndSubmitPunch() {
         stopKioskCamera();
         revokePhotoPreview();
         capturedPhotoBlob = null;
+        currentCameraAction = null;
+
         const cameraSection = document.getElementById('kiosk-camera-section');
         if (cameraSection) cameraSection.style.display = 'none';
 
         // Show Success Confirmation
         const successCard = document.getElementById('kiosk-punch-success');
-        if (currentCameraAction === 'CHECK_IN') {
+        if (performedAction === 'CHECK_IN') {
             document.getElementById('punch-success-title').textContent = 'Checked In Successfully!';
             document.getElementById('punch-success-message').textContent = 'Shift started with verified photo evidence. Saved to PostgreSQL.';
             document.getElementById('punch-server-time').textContent = formatISTTime(data.checkInTime);
@@ -1160,11 +1525,12 @@ async function confirmAndSubmitPunch() {
         }
         successCard.style.display = 'block';
 
-        showToast(`${currentCameraAction === 'CHECK_IN' ? 'Check-in' : 'Check-out'} recorded with photo evidence!`, 'success');
+        showToast(`${performedAction === 'CHECK_IN' ? 'Check-in' : 'Check-out'} recorded with photo evidence!`, 'success');
         startPunchAutoReset(5);
     } catch (err) {
         showToast(err.message, 'danger');
         showCameraError(err.message);
+    } finally {
         setButtonLoading(btn, false);
         if (retakeBtn) retakeBtn.disabled = false;
     }
@@ -1244,6 +1610,7 @@ async function resetKioskSession() {
 function resetKioskScreen() {
     currentKioskToken = null;
     currentCameraAction = null;
+    isCameraStarting = false;
     clearInterval(kioskTimerInterval);
     clearInterval(punchResetTimer);
 
@@ -1251,6 +1618,16 @@ function resetKioskScreen() {
     stopKioskCamera();
     revokePhotoPreview();
     capturedPhotoBlob = null;
+
+    const confirmBtn = document.getElementById('btn-camera-confirm');
+    const retakeBtn = document.getElementById('btn-camera-retake');
+    const captureBtn = document.getElementById('btn-camera-capture');
+    if (confirmBtn) {
+        setButtonLoading(confirmBtn, false);
+        confirmBtn.disabled = false;
+    }
+    if (retakeBtn) retakeBtn.disabled = false;
+    if (captureBtn) captureBtn.disabled = false;
 
     kioskEmployeeIdInput.value = '';
     kioskPinInput.value = '';
@@ -1281,6 +1658,8 @@ function resetKioskScreen() {
 // ==========================================
 async function loadAttendanceRecords(page = 0) {
     const tableBody = document.getElementById('attendance-table-body');
+    const tableWrapper = document.getElementById('att-table-wrapper');
+    const cardsWrapper = document.getElementById('attendance-cards-wrapper');
     const emptyState = document.getElementById('att-empty-state');
     const pagination = document.getElementById('att-pagination');
     const pageInfo = document.getElementById('att-page-info');
@@ -1289,7 +1668,8 @@ async function loadAttendanceRecords(page = 0) {
 
     if (!tableBody) return;
 
-    tableBody.innerHTML = '<tr><td colspan="9" class="text-center p-4"><div class="spinner-small" style="display:inline-block"></div> Loading attendance records...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="10" class="text-center p-4"><div class="spinner-small" style="display:inline-block"></div> Loading attendance records...</td></tr>';
+    if (cardsWrapper) cardsWrapper.innerHTML = '<div class="text-center p-4"><div class="spinner-small" style="display:inline-block"></div> Loading attendance records...</div>';
     if (emptyState) emptyState.style.display = 'none';
 
     const search = document.getElementById('att-search-input')?.value.trim() || '';
@@ -1318,6 +1698,10 @@ async function loadAttendanceRecords(page = 0) {
             return;
         }
 
+        if (!response.ok) {
+            throw new Error(`Server returned HTTP ${response.status}`);
+        }
+
         const data = await response.json();
         currentAttendancePage = data.number || 0;
         totalAttendancePages = data.totalPages || 1;
@@ -1326,80 +1710,23 @@ async function loadAttendanceRecords(page = 0) {
 
         if (records.length === 0) {
             tableBody.innerHTML = '';
+            if (cardsWrapper) cardsWrapper.innerHTML = '';
             if (emptyState) emptyState.style.display = 'block';
+            if (tableWrapper) tableWrapper.style.display = 'none';
+            if (cardsWrapper) cardsWrapper.style.display = 'none';
             if (pagination) pagination.style.display = 'none';
             return;
         }
 
         if (emptyState) emptyState.style.display = 'none';
+        if (tableWrapper) tableWrapper.style.display = '';
+        if (cardsWrapper) cardsWrapper.style.display = '';
         if (pagination) pagination.style.display = 'flex';
 
-        tableBody.innerHTML = records.map(r => {
-            let statusBadge = '';
-            if (r.status === 'CHECKED_IN') {
-                statusBadge = '<span class="badge-status-in">Checked In</span> <span class="badge-status-incomplete">Incomplete</span>';
-            } else if (r.status === 'CHECKED_OUT') {
-                statusBadge = '<span class="badge-status-out">Completed</span>';
-            } else if (r.status === 'VOIDED') {
-                statusBadge = '<span class="badge-status-voided">Voided</span>';
-            } else {
-                statusBadge = '<span class="badge-status-auto">Auto Closed</span> <span class="badge-status-incomplete">Cut-off</span>';
-            }
-
-            let indicatorBadge = '';
-            if (r.correctionIndicator === 'Manual Entry') {
-                indicatorBadge = ' <span class="badge-indicator-manual">📝 Manual</span>';
-            } else if (r.correctionIndicator === 'Corrected') {
-                indicatorBadge = ' <span class="badge-indicator-corrected">✏️ Corrected</span>';
-            }
-
-            const checkInFormatted = formatISTTime(r.checkInTime);
-            const checkOutFormatted = r.checkOutTime ? formatISTTime(r.checkOutTime) : '<span class="text-muted">Missing / Open</span>';
-            const durationDisplay = r.durationFormatted ? `<span class="badge-duration">${escapeHtml(r.durationFormatted)}</span>` : '<span class="text-muted">—</span>';
-
-            let photoButtons = [];
-            if (r.hasCheckInPhoto) {
-                photoButtons.push(`<button class="btn-photo-view" onclick="viewAttendancePhoto('${r.id}', 'CHECK_IN', '${escapeHtml(r.employeeName)}', '${r.workDate}')">📷 In</button>`);
-            }
-            if (r.hasCheckOutPhoto) {
-                photoButtons.push(`<button class="btn-photo-view" onclick="viewAttendancePhoto('${r.id}', 'CHECK_OUT', '${escapeHtml(r.employeeName)}', '${r.workDate}')">📷 Out</button>`);
-            }
-            const photoEvidenceHtml = photoButtons.length > 0 ? photoButtons.join(' ') : '<span class="text-muted" style="font-size:0.8rem">No Photo</span>';
-
-            const actionsHtml = `
-                <div class="actions-cell">
-                    <button class="btn-action-correct" onclick="openCorrectionModal('${r.id}')" title="Correct check-in/out or resolve missed checkout">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        <span>Correct</span>
-                    </button>
-                    <button class="btn-action-audit" onclick="openAuditHistoryModal('${r.id}', '${escapeHtml(r.employeeName)}', '${escapeHtml(r.employeeCode)}', '${r.workDate}')" title="View change history and audit trail">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <span>Audit</span>
-                    </button>
-                </div>
-            `;
-
-            return `
-                <tr>
-                    <td><strong>${r.workDate}</strong></td>
-                    <td><code>${escapeHtml(r.employeeCode)}</code></td>
-                    <td><strong>${escapeHtml(r.employeeName)}</strong></td>
-                    <td>${escapeHtml(r.department)}</td>
-                    <td>${checkInFormatted}</td>
-                    <td>${checkOutFormatted}</td>
-                    <td>${durationDisplay}</td>
-                    <td>${statusBadge}${indicatorBadge}</td>
-                    <td>${photoEvidenceHtml}</td>
-                    <td>${actionsHtml}</td>
-                </tr>
-            `;
-        }).join('');
+        tableBody.innerHTML = records.map(r => createAttendanceRow(r)).join('');
+        if (cardsWrapper) {
+            cardsWrapper.innerHTML = records.map(r => createAttendanceCard(r)).join('');
+        }
 
         if (pageInfo) pageInfo.textContent = `Page ${currentAttendancePage + 1} of ${Math.max(1, totalAttendancePages)} (${data.totalElements || records.length} records)`;
         if (btnPrev) btnPrev.disabled = currentAttendancePage <= 0;
@@ -1407,22 +1734,191 @@ async function loadAttendanceRecords(page = 0) {
 
     } catch (err) {
         tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-danger">Failed to load attendance records: ${escapeHtml(err.message)}</td></tr>`;
+        if (cardsWrapper) {
+            cardsWrapper.innerHTML = `<div class="text-center p-4 text-danger">Failed to load attendance records: ${escapeHtml(err.message)}</div>`;
+        }
+        if (pagination) pagination.style.display = 'none';
     }
+}
+
+function createAttendanceRow(r) {
+    let statusBadge = '';
+    if (r.status === 'CHECKED_IN') {
+        statusBadge = '<span class="status-badge active"><span class="status-dot" aria-hidden="true"></span>Checked In</span> <span class="badge-status-incomplete">Incomplete</span>';
+    } else if (r.status === 'CHECKED_OUT') {
+        statusBadge = '<span class="status-badge active"><span class="status-dot" aria-hidden="true"></span>Completed</span>';
+    } else if (r.status === 'VOIDED') {
+        statusBadge = '<span class="status-badge inactive"><span class="status-dot" aria-hidden="true"></span>Voided</span>';
+    } else {
+        statusBadge = '<span class="status-badge inactive"><span class="status-dot" aria-hidden="true"></span>Auto Closed</span> <span class="badge-status-incomplete">Cut-off</span>';
+    }
+
+    let indicatorBadge = '';
+    if (r.correctionIndicator === 'Manual Entry') {
+        indicatorBadge = ' <span class="badge-indicator-manual">📝 Manual</span>';
+    } else if (r.correctionIndicator === 'Corrected') {
+        indicatorBadge = ' <span class="badge-indicator-corrected">✏️ Corrected</span>';
+    }
+
+    const checkInFormatted = `<span class="mono-time text-success">${formatISTTime(r.checkInTime)}</span>`;
+    const checkOutFormatted = r.checkOutTime 
+        ? `<span class="mono-time text-primary">${formatISTTime(r.checkOutTime)}</span>` 
+        : '<span class="badge-status-incomplete">Missing / Open</span>';
+    const durationDisplay = r.durationFormatted 
+        ? `<span class="badge-duration">${escapeHtml(r.durationFormatted)}</span>` 
+        : '<span class="text-muted">—</span>';
+
+    let photoButtons = [];
+    if (r.hasCheckInPhoto) {
+        photoButtons.push(`<button class="btn-photo-view" onclick="viewAttendancePhoto('${r.id}', 'CHECK_IN', '${escapeHtml(r.employeeName)}', '${r.workDate}')" title="View Check-In Photo">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <span>In</span>
+        </button>`);
+    }
+    if (r.hasCheckOutPhoto) {
+        photoButtons.push(`<button class="btn-photo-view" onclick="viewAttendancePhoto('${r.id}', 'CHECK_OUT', '${escapeHtml(r.employeeName)}', '${r.workDate}')" title="View Check-Out Photo">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <span>Out</span>
+        </button>`);
+    }
+    const photoEvidenceHtml = photoButtons.length > 0 
+        ? `<div class="photo-btn-group">${photoButtons.join('')}</div>` 
+        : '<span class="text-muted text-sm">No Photo</span>';
+
+    const actionsHtml = `
+        <div class="actions-cell">
+            <button class="btn-action-correct" onclick="openCorrectionModal('${r.id}')" title="Correct check-in/out or resolve missed checkout">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                <span>Correct</span>
+            </button>
+            <button class="btn-action-audit" onclick="openAuditHistoryModal('${r.id}', '${escapeHtml(r.employeeName)}', '${escapeHtml(r.employeeCode)}', '${r.workDate}')" title="View change history and audit trail">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Audit</span>
+            </button>
+        </div>
+    `;
+
+    return `
+        <tr>
+            <td class="col-att-date"><strong>${r.workDate}</strong></td>
+            <td class="col-att-empid"><span class="mono-pill">${escapeHtml(r.employeeCode)}</span></td>
+            <td class="col-att-name"><span class="emp-name-text">${escapeHtml(r.employeeName)}</span></td>
+            <td class="col-att-dept"><span class="dept-pill">${escapeHtml(r.department || 'General')}</span></td>
+            <td class="col-att-in">${checkInFormatted}</td>
+            <td class="col-att-out">${checkOutFormatted}</td>
+            <td class="col-att-duration">${durationDisplay}</td>
+            <td class="col-att-status">${statusBadge}${indicatorBadge}</td>
+            <td class="col-att-photo">${photoEvidenceHtml}</td>
+            <td class="col-att-actions text-right">${actionsHtml}</td>
+        </tr>
+    `;
+}
+
+function createAttendanceCard(r) {
+    let statusBadge = '';
+    if (r.status === 'CHECKED_IN') {
+        statusBadge = '<span class="status-badge active"><span class="status-dot" aria-hidden="true"></span>Checked In</span> <span class="badge-status-incomplete">Incomplete</span>';
+    } else if (r.status === 'CHECKED_OUT') {
+        statusBadge = '<span class="status-badge active"><span class="status-dot" aria-hidden="true"></span>Completed</span>';
+    } else if (r.status === 'VOIDED') {
+        statusBadge = '<span class="status-badge inactive"><span class="status-dot" aria-hidden="true"></span>Voided</span>';
+    } else {
+        statusBadge = '<span class="status-badge inactive"><span class="status-dot" aria-hidden="true"></span>Auto Closed</span> <span class="badge-status-incomplete">Cut-off</span>';
+    }
+
+    let indicatorBadge = '';
+    if (r.correctionIndicator === 'Manual Entry') {
+        indicatorBadge = ' <span class="badge-indicator-manual">📝 Manual</span>';
+    } else if (r.correctionIndicator === 'Corrected') {
+        indicatorBadge = ' <span class="badge-indicator-corrected">✏️ Corrected</span>';
+    }
+
+    const checkInFormatted = formatISTTime(r.checkInTime);
+    const checkOutFormatted = r.checkOutTime ? formatISTTime(r.checkOutTime) : 'Missing / Open';
+    const durationDisplay = r.durationFormatted ? escapeHtml(r.durationFormatted) : '—';
+
+    let photoButtons = [];
+    if (r.hasCheckInPhoto) {
+        photoButtons.push(`<button class="btn-photo-view" onclick="viewAttendancePhoto('${r.id}', 'CHECK_IN', '${escapeHtml(r.employeeName)}', '${r.workDate}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <span>In Photo</span>
+        </button>`);
+    }
+    if (r.hasCheckOutPhoto) {
+        photoButtons.push(`<button class="btn-photo-view" onclick="viewAttendancePhoto('${r.id}', 'CHECK_OUT', '${escapeHtml(r.employeeName)}', '${r.workDate}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <span>Out Photo</span>
+        </button>`);
+    }
+    const photoEvidenceHtml = photoButtons.length > 0 ? photoButtons.join(' ') : '<span class="text-muted text-sm">No Photo</span>';
+
+    return `
+        <article class="att-mobile-card" data-record-id="${r.id}">
+            <div class="att-card-header">
+                <div class="att-card-identity">
+                    <span class="mono-pill">${escapeHtml(r.employeeCode)}</span>
+                    <h3 class="att-card-name">${escapeHtml(r.employeeName)}</h3>
+                </div>
+                <div class="att-card-date-badge">
+                    <strong>${r.workDate}</strong>
+                </div>
+            </div>
+            <div class="att-card-status-row">
+                <span class="dept-pill">${escapeHtml(r.department || 'General')}</span>
+                <div class="att-badges-wrap">
+                    ${statusBadge}${indicatorBadge}
+                </div>
+            </div>
+            <div class="att-card-times-grid">
+                <div class="att-time-cell">
+                    <span class="att-time-label">Check-In (IST)</span>
+                    <span class="att-time-val text-success">${checkInFormatted}</span>
+                </div>
+                <div class="att-time-cell">
+                    <span class="att-time-label">Check-Out (IST)</span>
+                    <span class="att-time-val text-primary">${checkOutFormatted}</span>
+                </div>
+                <div class="att-time-cell">
+                    <span class="att-time-label">Duration</span>
+                    <span class="att-time-val font-mono">${durationDisplay}</span>
+                </div>
+                <div class="att-time-cell">
+                    <span class="att-time-label">Photo Evidence</span>
+                    <div class="att-photo-wrap">${photoEvidenceHtml}</div>
+                </div>
+            </div>
+            <div class="att-card-actions">
+                <button class="btn btn-warning btn-sm action-btn" onclick="openCorrectionModal('${r.id}')" title="Correct check-in/out or resolve missed checkout">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span>Correct Punch</span>
+                </button>
+                <button class="btn btn-secondary btn-sm action-btn" onclick="openAuditHistoryModal('${r.id}', '${escapeHtml(r.employeeName)}', '${escapeHtml(r.employeeCode)}', '${r.workDate}')" title="View change history and audit trail">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Audit Trail</span>
+                </button>
+            </div>
+        </article>
+    `;
 }
 
 function setAttendanceDateQuick(type) {
     const fromEl = document.getElementById('att-from-date');
     const toEl = document.getElementById('att-to-date');
-    const today = new Date();
+    const now = new Date();
+    const istDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(now);
 
     if (type === 'today') {
-        const todayStr = today.toISOString().split('T')[0];
-        if (fromEl) fromEl.value = todayStr;
-        if (toEl) toEl.value = todayStr;
+        if (fromEl) fromEl.value = istDateStr;
+        if (toEl) toEl.value = istDateStr;
     } else if (type === 'yesterday') {
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yestStr = yesterday.toISOString().split('T')[0];
+        const yest = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const yestStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(yest);
         if (fromEl) fromEl.value = yestStr;
         if (toEl) toEl.value = yestStr;
     }
@@ -1480,8 +1976,8 @@ function formatISTTime(isoString) {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: false
-        }) + ' IST';
+            hour12: true
+        });
     } catch {
         return isoString;
     }
@@ -1900,10 +2396,14 @@ function renderAuditTimeline(events, container) {
     }).join('');
 }
 
-async function openManualAttendanceModal() {
+async function openManualAttendanceModal(targetEmployeeCode) {
     const modal = document.getElementById('manual-entry-modal');
     const errorBanner = document.getElementById('manual-error-banner');
     if (errorBanner) errorBanner.style.display = 'none';
+
+    // Hide search dropdown if opened from Quick Employee Finder
+    const dropdown = document.getElementById('dash-employee-search-results');
+    if (dropdown) dropdown.style.display = 'none';
 
     const select = document.getElementById('manual-emp-select');
     select.innerHTML = '<option value="">-- Select Employee --</option>';
@@ -1915,18 +2415,25 @@ async function openManualAttendanceModal() {
         if (response.ok) {
             const data = await response.json();
             const emps = data.content || [];
+            let matchedOptionValue = null;
             emps.forEach(emp => {
                 const opt = document.createElement('option');
                 opt.value = emp.id;
                 opt.textContent = `${emp.fullName} (${emp.employeeId} - ${emp.department || 'General'})`;
+                if (targetEmployeeCode && (emp.employeeId === targetEmployeeCode || emp.id === targetEmployeeCode)) {
+                    matchedOptionValue = emp.id;
+                }
                 select.appendChild(opt);
             });
+            if (matchedOptionValue) {
+                select.value = matchedOptionValue;
+            }
         }
     } catch (err) {
         console.error('Error loading employees for manual entry', err);
     }
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = currentDashboardDate || new Date().toISOString().split('T')[0];
     document.getElementById('manual-work-date').value = todayStr;
     document.getElementById('manual-in-time').value = '09:00:00';
     document.getElementById('manual-out-time').value = '17:00:00';
@@ -2030,6 +2537,55 @@ async function submitManualEntry(event) {
 // ==========================================
 // Monthly Reports & Summaries
 // ==========================================
+function createReportMobileCard(s) {
+    const statusBadge = s.employeeStatus === 'ACTIVE'
+        ? '<span class="badge badge-active">Active</span>'
+        : '<span class="badge badge-inactive">Inactive</span>';
+
+    const incompleteBadge = s.incompleteSessions > 0
+        ? `<span class="badge-status-incomplete">${s.incompleteSessions} open</span>`
+        : '<span class="text-muted text-sm">—</span>';
+
+    return `
+        <article class="card report-mobile-card" aria-label="Monthly report for ${escapeHtml(s.employeeName)}">
+            <div class="report-card-header">
+                <div>
+                    <h3 class="report-card-title">${escapeHtml(s.employeeName)}</h3>
+                    <div class="report-card-meta">
+                        <code>${escapeHtml(s.employeeCode)}</code>
+                        <span>•</span>
+                        <span>${escapeHtml(s.department || 'General')}</span>
+                    </div>
+                </div>
+                <div>${statusBadge}</div>
+            </div>
+            <div class="report-card-stats-grid">
+                <div class="report-card-stat-box">
+                    <span class="report-card-stat-label">Total Shifts</span>
+                    <span class="report-card-stat-val"><strong>${s.totalSessions}</strong></span>
+                </div>
+                <div class="report-card-stat-box">
+                    <span class="report-card-stat-label">Completed</span>
+                    <span class="report-card-stat-val text-success font-weight-bold">${s.completedSessions}</span>
+                </div>
+                <div class="report-card-stat-box">
+                    <span class="report-card-stat-label">Incomplete</span>
+                    <span class="report-card-stat-val">${incompleteBadge}</span>
+                </div>
+                <div class="report-card-stat-box">
+                    <span class="report-card-stat-label">Total Duration</span>
+                    <span class="report-card-stat-val"><span class="badge-duration">${escapeHtml(s.totalDurationFormatted)}</span></span>
+                </div>
+            </div>
+            <div class="report-card-actions">
+                <button type="button" class="btn btn-secondary btn-sm btn-block action-btn" onclick="viewEmployeeMonthlyDetail('${s.employeeId}', '${escapeHtml(s.employeeName)}')">
+                    <span>Inspect Days</span> &rarr;
+                </button>
+            </div>
+        </article>
+    `;
+}
+
 async function loadMonthlyReport() {
     if (!isAdminAuthenticated) {
         switchView('REPORTS');
@@ -2041,15 +2597,33 @@ async function loadMonthlyReport() {
     const searchEl = document.getElementById('report-staff-search');
 
     const tableBody = document.getElementById('report-table-body');
+    const cardsWrapper = document.getElementById('report-cards-wrapper');
     const emptyState = document.getElementById('report-empty-state');
 
     const now = new Date();
-    const month = monthEl?.value || (now.getMonth() + 1);
-    const year = yearEl?.value || now.getFullYear();
+    // Default to authoritative Asia/Kolkata month/year if not set
+    let defaultMonth = (now.getMonth() + 1).toString();
+    let defaultYear = now.getFullYear().toString();
+    try {
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Kolkata', month: 'numeric', year: 'numeric' }).formatToParts(now);
+        defaultMonth = parts.find(p => p.type === 'month')?.value || defaultMonth;
+        defaultYear = parts.find(p => p.type === 'year')?.value || defaultYear;
+    } catch (e) {
+        // Fallback to local
+    }
+
+    const month = monthEl?.value || defaultMonth;
+    const year = yearEl?.value || defaultYear;
     const search = searchEl?.value.trim() || '';
+
+    if (monthEl && !monthEl.value) monthEl.value = month;
+    if (yearEl && !yearEl.value) yearEl.value = year;
 
     if (tableBody) {
         tableBody.innerHTML = '<tr><td colspan="9" class="text-center p-4"><div class="spinner-small" style="display:inline-block"></div> Aggregating monthly records from PostgreSQL...</td></tr>';
+    }
+    if (cardsWrapper) {
+        cardsWrapper.innerHTML = '<div class="text-center p-4 text-muted"><div class="spinner-small" style="display:inline-block"></div> Aggregating monthly records...</div>';
     }
     if (emptyState) emptyState.style.display = 'none';
 
@@ -2093,44 +2667,56 @@ async function loadMonthlyReport() {
 
         const summaries = data.employeeSummaries || [];
         if (summaries.length === 0) {
-            tableBody.innerHTML = '';
+            if (tableBody) tableBody.innerHTML = '';
+            if (cardsWrapper) cardsWrapper.innerHTML = '';
             if (emptyState) emptyState.style.display = 'block';
             return;
         }
 
         if (emptyState) emptyState.style.display = 'none';
 
-        tableBody.innerHTML = summaries.map(s => {
-            const statusBadge = s.employeeStatus === 'ACTIVE'
-                ? '<span class="badge badge-active">Active</span>'
-                : '<span class="badge badge-inactive">Inactive</span>';
+        // 1. Populate Desktop/Tablet Table
+        if (tableBody) {
+            tableBody.innerHTML = summaries.map(s => {
+                const statusBadge = s.employeeStatus === 'ACTIVE'
+                    ? '<span class="badge badge-active">Active</span>'
+                    : '<span class="badge badge-inactive">Inactive</span>';
 
-            const incompleteBadge = s.incompleteSessions > 0
-                ? `<span class="badge-status-incomplete">${s.incompleteSessions} open</span>`
-                : '<span class="text-muted text-sm">—</span>';
+                const incompleteBadge = s.incompleteSessions > 0
+                    ? `<span class="badge-status-incomplete">${s.incompleteSessions} open</span>`
+                    : '<span class="text-muted text-sm">—</span>';
 
-            return `
-                <tr>
-                    <td><code>${escapeHtml(s.employeeCode)}</code></td>
-                    <td><strong>${escapeHtml(s.employeeName)}</strong></td>
-                    <td>${escapeHtml(s.department)}</td>
-                    <td>${statusBadge}</td>
-                    <td><strong>${s.totalSessions}</strong></td>
-                    <td><span class="text-success font-weight-bold">${s.completedSessions}</span></td>
-                    <td>${incompleteBadge}</td>
-                    <td><span class="badge-duration">${escapeHtml(s.totalDurationFormatted)}</span></td>
-                    <td class="text-right">
-                        <button class="btn-report-breakdown" onclick="viewEmployeeMonthlyDetail('${s.employeeId}', '${escapeHtml(s.employeeName)}')">
-                            <span>Inspect Days</span> &rarr;
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+                return `
+                    <tr>
+                        <td class="col-rep-code"><code>${escapeHtml(s.employeeCode)}</code></td>
+                        <td class="col-rep-name"><strong>${escapeHtml(s.employeeName)}</strong></td>
+                        <td class="col-rep-dept">${escapeHtml(s.department || '—')}</td>
+                        <td class="col-rep-status text-center">${statusBadge}</td>
+                        <td class="col-rep-shifts text-center"><strong>${s.totalSessions}</strong></td>
+                        <td class="col-rep-completed text-center"><span class="text-success font-weight-bold">${s.completedSessions}</span></td>
+                        <td class="col-rep-incomplete text-center">${incompleteBadge}</td>
+                        <td class="col-rep-duration text-center"><span class="badge-duration">${escapeHtml(s.totalDurationFormatted)}</span></td>
+                        <td class="col-rep-actions text-right">
+                            <button type="button" class="btn btn-secondary btn-sm action-btn btn-report-breakdown" onclick="viewEmployeeMonthlyDetail('${s.employeeId}', '${escapeHtml(s.employeeName)}')">
+                                <span>Inspect Days</span> &rarr;
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 2. Populate Mobile Cards
+        if (cardsWrapper) {
+            cardsWrapper.innerHTML = summaries.map(createReportMobileCard).join('');
+        }
 
     } catch (err) {
         if (tableBody) {
             tableBody.innerHTML = `<tr><td colspan="9" class="text-center p-4 text-danger">Failed to load monthly report: ${escapeHtml(err.message)}</td></tr>`;
+        }
+        if (cardsWrapper) {
+            cardsWrapper.innerHTML = `<div class="p-4 text-center text-danger">Failed to load monthly report: ${escapeHtml(err.message)}</div>`;
         }
     }
 }
@@ -2172,11 +2758,21 @@ async function exportMonthlyReportCsv() {
 
 function resetReportFilters() {
     const now = new Date();
+    let istMonth = (now.getMonth() + 1).toString();
+    let istYear = now.getFullYear().toString();
+    try {
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Kolkata', month: 'numeric', year: 'numeric' }).formatToParts(now);
+        istMonth = parts.find(p => p.type === 'month')?.value || istMonth;
+        istYear = parts.find(p => p.type === 'year')?.value || istYear;
+    } catch (e) {
+        // Fallback
+    }
+
     const monthEl = document.getElementById('report-month-select');
     const yearEl = document.getElementById('report-year-select');
     const searchEl = document.getElementById('report-staff-search');
-    if (monthEl) monthEl.value = (now.getMonth() + 1).toString();
-    if (yearEl) yearEl.value = now.getFullYear().toString();
+    if (monthEl) monthEl.value = istMonth;
+    if (yearEl) yearEl.value = istYear;
     if (searchEl) searchEl.value = '';
     loadMonthlyReport();
 }
@@ -2331,21 +2927,6 @@ function changeAttendancePage(delta) {
     const target = currentAttendancePage + delta;
     if (target >= 0 && target < totalAttendancePages) {
         loadAttendanceRecords(target);
-    }
-}
-
-function formatISTTime(isoString) {
-    if (!isoString) return '—';
-    try {
-        const d = new Date(isoString);
-        return d.toLocaleTimeString('en-IN', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        });
-    } catch {
-        return isoString;
     }
 }
 
@@ -2854,11 +3435,15 @@ function closeAuditHistoryModal() {
 // ==========================================
 function showLoading() {
     hideStates();
+    if (tableWrapper) tableWrapper.style.display = 'none';
+    if (employeeCardsWrapper) employeeCardsWrapper.style.display = 'none';
     loadingSpinner.style.display = 'block';
 }
 
 function showError(msg) {
     hideStates();
+    if (tableWrapper) tableWrapper.style.display = 'none';
+    if (employeeCardsWrapper) employeeCardsWrapper.style.display = 'none';
     errorMessage.textContent = msg;
     errorBox.style.display = 'block';
 }
@@ -3976,8 +4561,8 @@ function renderDashboardRoster() {
     }
 
     tbody.innerHTML = filtered.map(record => {
-        const checkInFormatted = record.checkInTime ? formatDateTime(record.checkInTime) : '--:--';
-        const checkOutFormatted = record.checkOutTime ? formatDateTime(record.checkOutTime) : '<span class="text-muted">--:--</span>';
+        const checkInFormatted = record.checkInTime ? formatISTTime(record.checkInTime) : '--:--';
+        const checkOutFormatted = record.checkOutTime ? formatISTTime(record.checkOutTime) : '<span class="text-muted">--:--</span>';
 
         let statusBadgeClass = 'badge-active';
         let statusLabel = record.status;
@@ -4011,11 +4596,10 @@ function renderDashboardRoster() {
         }
 
         let photoButton = '<span class="text-muted" style="font-size:0.75rem;">None</span>';
-        if (record.hasCheckInPhoto || record.hasCheckOutPhoto) {
-            photoButton = `<button class="btn btn-outline-secondary btn-sm" onclick="openPhotoViewerModal('${record.id}')" title="View Verification Photo">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                <span>Photo</span>
-            </button>`;
+        if (record.hasCheckInPhoto) {
+            photoButton = `<button class="btn btn-outline-secondary btn-sm" onclick="viewAttendancePhoto('${record.id}', 'CHECK_IN', '${escapeHtml(record.employeeName)}', '${record.workDate}')" title="View Check-In Photo">📷 In</button>`;
+        } else if (record.hasCheckOutPhoto) {
+            photoButton = `<button class="btn btn-outline-secondary btn-sm" onclick="viewAttendancePhoto('${record.id}', 'CHECK_OUT', '${escapeHtml(record.employeeName)}', '${record.workDate}')" title="View Check-Out Photo">📷 Out</button>`;
         }
 
         return `
@@ -4025,19 +4609,31 @@ function renderDashboardRoster() {
                     <div class="text-muted" style="font-size:0.75rem;">${escapeHtml(record.employeeId)}</div>
                 </td>
                 <td>${escapeHtml(record.department || 'General')}</td>
-                <td>${checkInFormatted}</td>
+                <td><strong>${checkInFormatted}</strong></td>
                 <td>${checkOutFormatted}</td>
                 <td><span class="badge-status ${statusBadgeClass}">${statusLabel}</span></td>
                 <td><span style="font-size:0.82rem; color:#475569;">${durationStr}</span></td>
                 <td>${photoButton}</td>
                 <td>
-                    <button class="btn btn-outline-primary btn-sm" onclick="openAttendanceCorrectionModal('${record.id}')" title="Attendance Correction">
+                    <button class="btn btn-outline-primary btn-sm" onclick="openCorrectionModal('${record.id}')" title="Attendance Correction">
                         Correct
                     </button>
                 </td>
             </tr>
         `;
     }).join('');
+}
+
+function openAttendanceCorrectionModal(recordId) {
+    openCorrectionModal(recordId);
+}
+
+function openPhotoViewerModal(recordId) {
+    const record = currentDashboardRosterRecords.find(r => r.id === recordId);
+    if (record) {
+        const pType = record.hasCheckInPhoto ? 'CHECK_IN' : 'CHECK_OUT';
+        viewAttendancePhoto(record.id, pType, record.employeeName, record.workDate);
+    }
 }
 
 async function handleDashboardEmployeeSearch(query) {
@@ -4108,6 +4704,226 @@ function viewEmployeeHistoryFromDashboard(employeeUuid, employeeId) {
 
     switchView('ATTENDANCE');
 }
+
+// ==========================================
+// Disaster Recovery & Backup Module (Phase 16)
+// ==========================================
+
+async function loadBackupDashboard() {
+    try {
+        const [statusRes, historyRes] = await Promise.all([
+            fetch(API_ADMIN_BACKUP + '/status', { credentials: 'include' }),
+            fetch(API_ADMIN_BACKUP + '/history', { credentials: 'include' })
+        ]);
+
+        if (statusRes.ok) {
+            const statusData = await statusRes.json();
+            renderBackupStatus(statusData);
+        }
+
+        if (historyRes.ok) {
+            const historyData = await historyRes.json();
+            renderBackupHistory(historyData);
+        }
+    } catch (err) {
+        console.error('loadBackupDashboard error:', err);
+    }
+}
+
+function renderBackupStatus(data) {
+    const healthBadge = document.getElementById('dr-health-badge');
+    const statusText = document.getElementById('dr-status-text');
+    const lastBackupDesc = document.getElementById('dr-last-backup-desc');
+    const rpoValue = document.getElementById('dr-rpo-value');
+    const rtoValue = document.getElementById('dr-rto-value');
+    const storageAvail = document.getElementById('dr-storage-avail');
+    const storageCount = document.getElementById('dr-storage-count');
+
+    if (healthBadge && statusText) {
+        statusText.textContent = data.status || 'HEALTHY';
+        if (data.status === 'HEALTHY') {
+            healthBadge.className = 'metric-badge metric-badge-success';
+            healthBadge.textContent = 'HEALTHY';
+        } else if (data.status === 'WARNING') {
+            healthBadge.className = 'metric-badge metric-badge-warning';
+            healthBadge.textContent = 'WARNING';
+        } else {
+            healthBadge.className = 'metric-badge metric-badge-danger';
+            healthBadge.textContent = 'CRITICAL';
+        }
+    }
+
+    if (lastBackupDesc) {
+        if (data.lastVerifiedBackup) {
+            const d = new Date(data.lastVerifiedBackup.createdAt);
+            lastBackupDesc.textContent = 'Last verified: ' + d.toLocaleString();
+        } else {
+            lastBackupDesc.textContent = 'No verified backup recorded yet';
+        }
+    }
+
+    if (rpoValue && data.rpoTargetHours) {
+        if (data.lastVerifiedBackup) {
+            const diffHours = Math.round((Date.now() - new Date(data.lastVerifiedBackup.createdAt).getTime()) / (1000 * 3600));
+            rpoValue.textContent = diffHours < 1 ? '< 1 Hour' : diffHours + ' Hours';
+        } else {
+            rpoValue.textContent = 'Unmet';
+        }
+    }
+
+    if (rtoValue) {
+        if (data.lastRestoreTest && data.lastRestoreTest.restoreDurationMs) {
+            rtoValue.textContent = (data.lastRestoreTest.restoreDurationMs / 1000).toFixed(2) + 's';
+        } else {
+            rtoValue.textContent = '< 5 Min Target';
+        }
+    }
+
+    if (storageAvail && data.availableDiskSpaceBytes) {
+        storageAvail.textContent = (data.availableDiskSpaceBytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    }
+    if (storageCount) {
+        storageCount.textContent = (data.totalBackupsCount || 0) + ' Recovery Points Available';
+    }
+}
+
+function renderBackupHistory(backups) {
+    const tbody = document.getElementById('backup-table-body');
+    if (!tbody) return;
+
+    if (!backups || backups.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted p-4">No backups found. Click "Create Backup Now" to capture initial disaster recovery snapshot.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = backups.map(b => {
+        const d = new Date(b.createdAt);
+        const sizeMb = (b.totalSizeBytes / (1024 * 1024)).toFixed(2) + ' MB';
+        const isVerified = b.status === 'VERIFIED';
+        const statusBadge = isVerified 
+            ? '<span class="badge-status badge-active">VERIFIED</span>'
+            : (b.status === 'IN_PROGRESS' ? '<span class="badge-status badge-warning">IN PROGRESS</span>' : '<span class="badge-status badge-danger">FAILED</span>');
+
+        const checksumShort = b.totalArchiveChecksum ? b.totalArchiveChecksum.substring(0, 16) + '...' : '--';
+
+        return `
+            <tr>
+                <td><strong>${escapeHtml(b.backupId)}</strong></td>
+                <td>${d.toUTCString()}</td>
+                <td><span class="badge-pill">${escapeHtml(b.type || 'MANUAL')}</span></td>
+                <td>${sizeMb}</td>
+                <td>${b.photoCount || 0} files</td>
+                <td><code style="font-size:0.75rem;" title="${escapeHtml(b.totalArchiveChecksum || '')}">${checksumShort}</code></td>
+                <td>${statusBadge}</td>
+                <td class="text-right">
+                    <button class="btn btn-secondary btn-xs" onclick="downloadBackup('${escapeHtml(b.backupId)}')" title="Download Bundle Archive">
+                        Download
+                    </button>
+                    <button class="btn btn-outline-primary btn-xs" onclick="runIsolatedRestoreTest('${escapeHtml(b.backupId)}')" title="Test Recovery into Isolated DB">
+                        Test Recovery
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function triggerManualBackup() {
+    const btn = document.getElementById('btn-trigger-backup');
+    if (btn) btn.disabled = true;
+
+    try {
+        const res = await fetch(API_ADMIN_BACKUP + '/trigger', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ type: 'MANUAL', notes: 'Manual snapshot via web dashboard' })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            alert('Backup created successfully! ID: ' + data.backupId + ' (Size: ' + (data.totalSizeBytes / (1024 * 1024)).toFixed(2) + ' MB, Duration: ' + data.durationMs + 'ms)');
+            loadBackupDashboard();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            alert('Backup failed: ' + (err.message || res.statusText));
+        }
+    } catch (err) {
+        alert('Network error while triggering backup: ' + err.message);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function runIsolatedRestoreTest(backupId) {
+    const btn = document.getElementById('btn-run-restore-test');
+    if (btn) btn.disabled = true;
+
+    const resultBox = document.getElementById('restore-test-result-box');
+    const resultDetails = document.getElementById('restore-test-details');
+    const badge = document.getElementById('restore-test-badge');
+
+    if (resultBox) {
+        resultBox.style.display = 'block';
+        if (resultDetails) resultDetails.innerHTML = '<div class="spinner-small mr-2"></div> Running restore into isolated target database "attendance_recovery" and validating photo files...';
+    }
+
+    try {
+        const body = backupId ? { backupId: backupId, targetDatabase: 'attendance_recovery', targetPhotoDir: 'photos_recovery' } : {};
+        const res = await fetch(API_ADMIN_BACKUP + '/restore-test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (badge) {
+                badge.className = data.status === 'PASSED' ? 'badge-pill badge-pill-active' : 'badge-pill badge-pill-danger';
+                badge.textContent = 'RECOVERY ' + data.status;
+            }
+            if (resultDetails) {
+                const countRows = Object.entries(data.restoredRecordCounts || {})
+                    .map(([tbl, count]) => `<tr><td><code>${escapeHtml(tbl)}</code></td><td class="text-right"><strong>${count}</strong></td></tr>`)
+                    .join('');
+
+                resultDetails.innerHTML = `
+                    <div style="background: rgba(16, 185, 129, 0.08); border-left: 4px solid var(--color-success); padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                        <strong>${escapeHtml(data.message)}</strong><br>
+                        <span class="text-muted" style="font-size:0.8rem;">
+                            Target DB: <code>${escapeHtml(data.targetDatabase)}</code> | Target Photos: <code>${escapeHtml(data.targetPhotoDir)}</code> | 
+                            Restore Duration (RTO): <strong>${data.restoreDurationMs}ms</strong> | Production 'attendance' DB: <strong>100% UNTOUCHED</strong>
+                        </span>
+                    </div>
+                    <div class="table-responsive" style="max-width: 480px;">
+                        <table class="data-table" style="font-size:0.8rem;">
+                            <thead><tr><th>Table</th><th class="text-right">Restored Rows</th></tr></thead>
+                            <tbody>${countRows}</tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            loadBackupDashboard();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            if (resultDetails) {
+                resultDetails.innerHTML = `<div class="alert alert-danger">Restore test failed: ${escapeHtml(err.message || res.statusText)}</div>`;
+            }
+        }
+    } catch (err) {
+        if (resultDetails) {
+            resultDetails.innerHTML = `<div class="alert alert-danger">Restore verification network error: ${escapeHtml(err.message)}</div>`;
+        }
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+function downloadBackup(backupId) {
+    window.location.href = API_ADMIN_BACKUP + '/download/' + encodeURIComponent(backupId);
+}
+
 
 
 

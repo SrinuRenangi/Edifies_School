@@ -2,6 +2,7 @@ package com.edifies.attendance.modules.attendance.repository;
 
 import com.edifies.attendance.modules.attendance.model.AttendanceRecord;
 import com.edifies.attendance.modules.attendance.model.AttendanceStatus;
+import com.edifies.attendance.modules.employee.model.EmployeeStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -64,7 +66,7 @@ public interface AttendanceRepository extends JpaRepository<AttendanceRecord, UU
     long countDistinctEmployeesByWorkDateAndStatusAndEmployeeStatus(
             @Param("workDate") LocalDate workDate,
             @Param("status") AttendanceStatus status,
-            @Param("empStatus") com.edifies.attendance.modules.employee.model.EmployeeStatus empStatus
+            @Param("empStatus") EmployeeStatus empStatus
     );
 
     @Query("SELECT COUNT(a) FROM AttendanceRecord a WHERE a.workDate = :workDate AND a.status = :status")
@@ -84,7 +86,7 @@ public interface AttendanceRepository extends JpaRepository<AttendanceRecord, UU
     long countDistinctEmployeesWithAttendanceOnWorkDate(
             @Param("workDate") LocalDate workDate,
             @Param("voidedStatus") AttendanceStatus voidedStatus,
-            @Param("empStatus") com.edifies.attendance.modules.employee.model.EmployeeStatus empStatus
+            @Param("empStatus") EmployeeStatus empStatus
     );
 
     @Query("SELECT a FROM AttendanceRecord a JOIN FETCH a.employee WHERE a.workDate <= :workDate ORDER BY a.updatedAt DESC")
@@ -95,7 +97,7 @@ public interface AttendanceRepository extends JpaRepository<AttendanceRecord, UU
             @Param("workDate") LocalDate workDate,
             @Param("autoClosedStatus") AttendanceStatus autoClosedStatus,
             @Param("openStatus") AttendanceStatus openStatus,
-            @Param("overdueThreshold") java.time.Instant overdueThreshold,
+            @Param("overdueThreshold") Instant overdueThreshold,
             Pageable pageable
     );
 }

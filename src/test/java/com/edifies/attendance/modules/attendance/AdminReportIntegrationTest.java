@@ -220,4 +220,93 @@ class AdminReportIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", containsString("fromDate cannot be after toDate")));
     }
+
+    @Test
+    @WithMockUser(roles = "MANAGER")
+    @DisplayName("Security: Manager role cannot access administrator report or export endpoints")
+    void security_managerRole_cannotAccessAdminReports() throws Exception {
+        mockMvc.perform(get("/api/admin/reports/monthly")
+                        .param("month", "10")
+                        .param("year", "2026"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/admin/reports/monthly/export")
+                        .param("month", "10")
+                        .param("year", "2026"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/admin/reports/attendance/export"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("CSV Export: Protects against formula injection by neutralizing dangerous prefixes")
+    void exportCsv_protectsAgainstFormulaInjection() throws Exception {
+        String hashedPin = passwordEncoder.encode("1234");
+        Employee injectionStaff = new Employee("EMP-INJ-01", "=cmd|' /C calc'!A0", "+Finance", hashedPin);
+        injectionStaff = employeeRepository.saveAndFlush(injectionStaff);
+
+        AttendanceRecord r = new AttendanceRecord(injectionStaff, LocalDate.of(2026, 10, 18), Instant.parse("2026-10-18T03:30:00Z"));
+        r.setCheckOutTime(Instant.parse("2026-10-18T11:30:00Z"));
+        r.setStatus(AttendanceStatus.CHECKED_OUT);
+        attendanceRepository.saveAndFlush(r);
+
+        MvcResult result = mockMvc.perform(get("/api/admin/reports/monthly/export")
+                        .param("month", "10")
+                        .param("year", "2026"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String csv = new String(result.getResponse().getContentAsByteArray());
+        // Cell should be prepended with single quote to prevent spreadsheet code execution
+        assertThat(csv).contains("'=cmd|' /C calc'!A0");
+        assertThat(csv).contains("'+Finance");
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("Validation: Invalid month or year query parameters are rejected with 400 Bad Request")
+    void validation_invalidMonthOrYear_rejectedWith400() throws Exception {
+        // Month 13
+        mockMvc.perform(get("/api/admin/reports/monthly")
+                        .param("month", "13")
+                        .param("year", "2026"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("Month must be between 1 and 12")));
+
+        // Month 0
+        mockMvc.perform(get("/api/admin/reports/monthly")
+                        .param("month", "0")
+                        .param("year", "2026"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("Month must be between 1 and 12")));
+
+        // Year 2019
+        mockMvc.perform(get("/api/admin/reports/monthly")
+                        .param("month", "10")
+                        .param("year", "2019"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("Year must be between 2020 and 2100")));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("Monthly report: Voided attendance records are excluded from session counts and marked voided")
+    void monthlyReport_voidedRecords_excludedFromSessionCounts() throws Exception {
+        AttendanceRecord voidedRecord = new AttendanceRecord(employee1, LocalDate.of(2026, 10, 20), Instant.parse("2026-10-20T03:30:00Z"));
+        voidedRecord.setStatus(AttendanceStatus.VOIDED);
+        attendanceRepository.saveAndFlush(voidedRecord);
+
+        mockMvc.perform(get("/api/admin/reports/monthly")
+                        .param("month", "10")
+                        .param("year", "2026")
+                        .param("search", "EMP-REP-01"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalRecordedSessions", is(0)))
+                .andExpect(jsonPath("$.totalCompletedSessions", is(0)))
+                .andExpect(jsonPath("$.totalIncompleteSessions", is(0)))
+                .andExpect(jsonPath("$.employeeSummaries[0].dailyRecords[19].status", is("VOIDED")))
+                .andExpect(jsonPath("$.employeeSummaries[0].dailyRecords[19].hasRecord", is(false)));
+    }
 }
