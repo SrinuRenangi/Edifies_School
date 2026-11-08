@@ -34,4 +34,7 @@ photos_recovery/
 backups/
 docker/volumes/
 
+# Active PHP Product (Independent Git Repository)
+php-attendance/
+
 
